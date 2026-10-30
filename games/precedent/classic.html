@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Precedent</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single docket column, max 960px. Rulings stack in two courts (For / Against); the filing desk sits below; the bar exam takes over the desk when sat. */
+:root{
+  --bg:#f1f3f6; --paper:#ffffff; --paper-2:#e7ebf0; --ink:#17212b; --ink-2:#4b5968; --ink-3:#8593a3;
+  --line:#cfd6de; --accent:#2f3f9e; --accent-ink:#ffffff;
+  --for:#1d6b47; --for-bg:#e3f2ea; --against:#8a2130; --against-bg:#f7e4e7;
+  --p-red:#d6454a; --p-blue:#3a7bd5; --p-gold:#e0a21a; --p-stroke:rgba(0,0,0,.18);
+  --shadow:0 1px 2px rgba(23,33,43,.06),0 8px 24px rgba(23,33,43,.06);
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#10161d; --paper:#18202a; --paper-2:#1f2935; --ink:#e7ecf2; --ink-2:#b4bfcb; --ink-3:#7c8896;
+  --line:#2c3845; --accent:#8e9cf0; --accent-ink:#0f1420;
+  --for:#5fcf98; --for-bg:#163325; --against:#f08a99; --against-bg:#3a1b22;
+  --p-red:#e0575c; --p-blue:#5b96e8; --p-gold:#edb53a; --p-stroke:rgba(255,255,255,.22);
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3); color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#10161d; --paper:#18202a; --paper-2:#1f2935; --ink:#e7ecf2; --ink-2:#b4bfcb; --ink-3:#7c8896;
+  --line:#2c3845; --accent:#8e9cf0; --accent-ink:#0f1420;
+  --for:#5fcf98; --for-bg:#163325; --against:#f08a99; --against-bg:#3a1b22;
+  --p-red:#e0575c; --p-blue:#5b96e8; --p-gold:#edb53a; --p-stroke:rgba(255,255,255,.22);
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3); color-scheme:dark }
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+.wrap{max-width:960px;margin:0 auto;display:grid;gap:20px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.1}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:8px 14px;min-height:38px}
+button:hover{border-color:var(--ink-3)}
+button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+button.quiet{background:transparent}
+select{font:inherit;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:7px 10px;min-height:38px}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+header{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:end;justify-content:space-between;padding-top:28px;border-bottom:1px solid var(--line);padding-bottom:16px}
+header h1{font-size:clamp(34px,6vw,52px);font-weight:800;letter-spacing:-.02em}
+header p{margin:4px 0 0;color:var(--ink-2);max-width:52ch}
+.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+.stats{display:flex;gap:18px;flex-wrap:wrap;color:var(--ink-2);font-size:13.5px}
+.stats b{color:var(--ink);font-weight:600}
+
+.courts{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:640px){.courts{grid-template-columns:1fr}}
+.court{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px;box-shadow:var(--shadow);min-width:0}
+.court h2{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.court.for h2{color:var(--for)} .court.against h2{color:var(--against)}
+.stamp{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;padding:3px 7px;border-radius:4px;border:1.5px solid currentColor;text-transform:uppercase;transform:rotate(-2deg)}
+.cases{display:grid;gap:8px}
+.case{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:var(--paper-2);min-height:54px}
+.case .num{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);min-width:3.2ch}
+.case.fresh{animation:drop .5s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes drop{from{transform:translateY(-8px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+.row{display:flex;gap:6px;align-items:center;flex-wrap:nowrap}
+.row svg{width:40px;height:40px;flex:none}
+.empty{color:var(--ink-3);font-size:13px;padding:10px}
+.pred-note{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--ink-3);white-space:nowrap}
+.pred-note.hit{color:var(--for)} .pred-note.miss{color:var(--against)}
+
+.desk{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow);display:grid;gap:16px}
+.desk h2{font-size:20px;font-weight:700}
+.desk-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline}
+.builder{display:grid;gap:14px}
+.slots{display:flex;gap:8px;align-items:center;min-height:64px;padding:10px;border:1.5px dashed var(--line);border-radius:10px;background:var(--bg);flex-wrap:wrap}
+.slot{width:52px;height:52px;border-radius:8px;background:var(--paper);display:grid;place-items:center;border:1px solid var(--line);cursor:pointer;padding:0}
+.slot svg{width:44px;height:44px}
+.slot.ghost{border-style:dashed;background:transparent;cursor:default;color:var(--ink-3);font-size:22px}
+.slots .hint{color:var(--ink-3);font-size:13px;margin-left:6px}
+.picker{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.group{display:grid;gap:6px}
+.seg{display:flex;gap:4px;padding:3px;background:var(--paper-2);border-radius:9px;flex-wrap:wrap}
+.seg button{flex:1;border:none;background:transparent;min-height:36px;padding:6px 8px;border-radius:7px;display:flex;align-items:center;justify-content:center;gap:6px;color:var(--ink-2)}
+.seg button[aria-pressed="true"]{background:var(--paper);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12);font-weight:600}
+.seg svg{width:22px;height:22px}
+.dot{width:14px;height:14px;border-radius:50%;display:inline-block;border:1px solid var(--p-stroke)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.actions .spacer{flex:1}
+.file-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line);padding-top:14px}
+.file-row .seg{flex:0 1 300px}
+.verdict{min-height:28px;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.verdict .stamp{transform:rotate(-3deg)}
+.verdict.for{color:var(--for)} .verdict.against{color:var(--against)}
+.sub{color:var(--ink-2);font-size:13.5px;margin:0}
+
+.exam{display:grid;gap:12px}
+.exam-case{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:10px 12px;border-radius:10px;background:var(--paper-2)}
+.exam-case .seg{min-width:200px}
+.exam-case.right{outline:2px solid var(--for)} .exam-case.wrong{outline:2px solid var(--against)}
+.exam-case .truth{font-family:var(--mono);font-size:11.5px;color:var(--ink-2)}
+@media (max-width:520px){.exam-case{grid-template-columns:1fr}}
+
+.opinion{border-left:4px solid var(--accent);padding:12px 16px;background:var(--paper-2);border-radius:0 10px 10px 0;display:grid;gap:6px}
+.opinion .rule{font-family:var(--display);font-size:22px;font-weight:700}
+.rank{font-family:var(--mono);font-size:12px;color:var(--ink-2)}
+
+details.help{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--paper)}
+details.help summary{cursor:pointer;font-weight:600}
+details.help p,details.help li{color:var(--ink-2);font-size:14px}
+details.help ul{padding-left:18px;margin:6px 0}
+.toast{position:fixed;left:50%;bottom:max(16px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:13.5px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .25s}
+.toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){.case.fresh{animation:none}.toast{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">A game of inference</div>
+      <h1>Precedent</h1>
+      <p>The judge rules by a secret rule. Read the rulings, file your own test cases, and when you think you have it, sit the bar exam: predict five fresh rulings.</p>
+    </div>
+    <div class="controls">
+      <label class="eyebrow" for="difficulty">Bench</label>
+      <select id="difficulty">
+        <option value="easy">County court (easy)</option>
+        <option value="medium" selected>Circuit court (medium)</option>
+        <option value="hard">Supreme Court (hard)</option>
+      </select>
+      <button id="newRound" class="primary">New judge</button>
+    </div>
+  </header>
+
+  <div class="stats">
+    <span>Filings this round: <b id="sFilings" class="mono">0</b></span>
+    <span>Predictions: <b id="sPred" class="mono">0 / 0</b></span>
+    <span>Rounds won: <b id="sWon" class="mono">0</b></span>
+    <span>Best: <b id="sBest" class="mono">–</b></span>
+  </div>
+
+  <section class="courts" aria-label="Rulings so far">
+    <div class="court for">
+      <h2><span class="stamp">For</span> Ruled in favor</h2>
+      <div class="cases" id="forList"></div>
+    </div>
+    <div class="court against">
+      <h2><span class="stamp">Against</span> Ruled against</h2>
+      <div class="cases" id="againstList"></div>
+    </div>
+  </section>
+
+  <section class="desk" id="desk">
+    <div class="desk-head">
+      <h2 id="deskTitle">File a test case</h2>
+      <p class="sub" id="deskSub">A case is a row of one to four pieces, read left to right. Build one and see how the judge rules.</p>
+    </div>
+
+    <div class="builder" id="builder">
+      <div class="slots" id="slots" aria-live="polite"></div>
+      <div class="picker">
+        <div class="group">
+          <div class="eyebrow">Shape</div>
+          <div class="seg" id="shapeSeg" role="group" aria-label="Shape"></div>
+        </div>
+        <div class="group">
+          <div class="eyebrow">Color</div>
+          <div class="seg" id="colorSeg" role="group" aria-label="Color"></div>
+        </div>
+        <div class="group">
+          <div class="eyebrow">Size</div>
+          <div class="seg" id="sizeSeg" role="group" aria-label="Size"></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="addPiece" class="primary">Add piece</button>
+        <button id="undoPiece">Remove last</button>
+        <button id="clearCase" class="quiet">Clear</button>
+        <button id="randomCase" class="quiet">Random case</button>
+        <span class="spacer"></span>
+        <button id="clerk" class="quiet" disabled title="Available after six filings">Ask the clerk</button>
+        <button id="giveUp" class="quiet">Read the opinion</button>
+      </div>
+      <div class="file-row">
+        <div class="group" style="flex:0 1 300px">
+          <div class="eyebrow">Your prediction</div>
+          <div class="seg" id="predSeg" role="group" aria-label="Prediction">
+            <button data-p="for" aria-pressed="false">For</button>
+            <button data-p="against" aria-pressed="false">Against</button>
+            <button data-p="none" aria-pressed="true">No guess</button>
+          </div>
+        </div>
+        <button id="fileCase" class="primary" style="min-height:46px;padding-inline:22px">File the case</button>
+        <button id="sitBar" style="min-height:46px">Sit the bar exam</button>
+      </div>
+      <div class="verdict" id="verdict" aria-live="polite"></div>
+    </div>
+
+    <div class="exam" id="exam" hidden></div>
+    <div class="opinion" id="opinion" hidden></div>
+  </section>
+
+  <details class="help">
+    <summary>How to play, and why this is a law game</summary>
+    <p>Every round the judge adopts one secret rule about a case. A case is a row of one to four pieces. Each piece has a shape (circle, square, triangle), a color (red, blue, gold), and a size (small or large). Order matters for some rules.</p>
+    <ul>
+      <li><b>Read the docket.</b> You start with a few rulings. The rule is consistent with all of them, and with many other rules you have not thought of yet.</li>
+      <li><b>File test cases.</b> Build a case and the judge rules on it. Good filings are the ones that split your live hypotheses: change one thing at a time.</li>
+      <li><b>Predict before you file.</b> Optional, but it is the honest test of whether you understand the rule yet.</li>
+      <li><b>Sit the bar.</b> Five fresh cases, you call each one. Five for five wins the round. Fewer filings before passing earns a higher rank.</li>
+      <li><b>Ask the clerk</b> after six filings to learn what kind of thing the rule is about. <b>Read the opinion</b> to give up and see the rule.</li>
+    </ul>
+    <p>This is how courts work. Nobody hands you the rule. You get rulings on facts, you infer the rule, you test it against new facts, and you find out you were wrong when the next case comes out the other way. Passing the bar here means the same thing it means in life: you can predict what the judge will do.</p>
+  </details>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+'use strict';
+const SHAPES=['circle','square','triangle'], COLORS=['red','blue','gold'], SIZES=['small','large'];
+const $=id=>document.getElementById(id);
+
+/* ---------- rendering pieces ---------- */
+function pieceSVG(p, px){
+  const s=px||40, c=s/2, r=p.size==='large'? s*0.40 : s*0.24;
+  const fill=`var(--p-${p.color})`, stroke='var(--p-stroke)';
+  let body='';
+  if(p.shape==='circle') body=`<circle cx="${c}" cy="${c}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>`;
+  else if(p.shape==='square') body=`<rect x="${c-r}" y="${c-r}" width="${2*r}" height="${2*r}" rx="${r*0.18}" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>`;
+  else { const h=r*1.15; body=`<polygon points="${c},${c-h} ${c+r*1.05},${c+h*0.75} ${c-r*1.05},${c+h*0.75}" fill="${fill}" stroke="${stroke}" stroke-width="1.5" stroke-linejoin="round"/>`; }
+  const label=`${p.size} ${p.color} ${p.shape}`;
+  return `<svg viewBox="0 0 ${s} ${s}" role="img" aria-label="${label}"><title>${label}</title>${body}</svg>`;
+}
+function rowHTML(cs){ return `<div class="row">${cs.map(p=>pieceSVG(p)).join('')}</div>`; }
+function describe(cs){ return cs.map(p=>`${p.size} ${p.color} ${p.shape}`).join(', '); }
+
+/* ---------- random ---------- */
+const rnd=n=>Math.floor(Math.random()*n);
+const pick=a=>a[rnd(a.length)];
+function randomPiece(){ return {shape:pick(SHAPES),color:pick(COLORS),size:pick(SIZES)}; }
+function randomCase(){ const n=1+rnd(4); return Array.from({length:n},randomPiece); }
+const key=cs=>cs.map(p=>p.shape[0]+p.color[0]+p.size[0]).join('-');
+
+/* ---------- rules ---------- */
+const cnt=(cs,f)=>cs.filter(f).length;
+const plural=s=>s==='circle'?'circles':s==='square'?'squares':'triangles';
+const R={
+  easy:[
+    ()=>{const c=pick(COLORS);return {text:`At least one piece is ${c}.`,cat:'color',fn:cs=>cs.some(p=>p.color===c)}},
+    ()=>{const s=pick(SHAPES);return {text:`At least one piece is a ${s}.`,cat:'shape',fn:cs=>cs.some(p=>p.shape===s)}},
+    ()=>{const n=1+rnd(4);return {text:`The case has exactly ${n} piece${n>1?'s':''}.`,cat:'count',fn:cs=>cs.length===n}},
+    ()=>({text:'All pieces are the same color.',cat:'color',fn:cs=>cs.every(p=>p.color===cs[0].color)}),
+    ()=>({text:'All pieces are the same shape.',cat:'shape',fn:cs=>cs.every(p=>p.shape===cs[0].shape)}),
+    ()=>{const z=pick(SIZES);return {text:`Every piece is ${z}.`,cat:'size',fn:cs=>cs.every(p=>p.size===z)}},
+    ()=>{const n=2+rnd(2);return {text:`The case has at least ${n} pieces.`,cat:'count',fn:cs=>cs.length>=n}},
+  ],
+  medium:[
+    ()=>{const c=pick(COLORS);return {text:`No piece is ${c}.`,cat:'color',fn:cs=>!cs.some(p=>p.color===c)}},
+    ()=>{const c=pick(COLORS);return {text:`At least two pieces are ${c}.`,cat:'color',fn:cs=>cnt(cs,p=>p.color===c)>=2}},
+    ()=>{const a=pick(SHAPES);let b=pick(SHAPES);while(b===a)b=pick(SHAPES);return {text:`There are more ${plural(a)} than ${plural(b)}.`,cat:'shape',fn:cs=>cnt(cs,p=>p.shape===a)>cnt(cs,p=>p.shape===b)}},
+    ()=>({text:'The number of pieces is even.',cat:'count',fn:cs=>cs.length%2===0}),
+    ()=>({text:'The number of pieces is odd.',cat:'count',fn:cs=>cs.length%2===1}),
+    ()=>{const z=pick(SIZES),s=pick(SHAPES);return {text:`There is a ${z} ${s}.`,cat:'size and shape',fn:cs=>cs.some(p=>p.size===z&&p.shape===s)}},
+    ()=>{const c=pick(COLORS),s=pick(SHAPES);return {text:`There is a ${c} ${s}.`,cat:'color and shape',fn:cs=>cs.some(p=>p.color===c&&p.shape===s)}},
+    ()=>({text:'Exactly two different colors appear.',cat:'color',fn:cs=>new Set(cs.map(p=>p.color)).size===2}),
+    ()=>({text:'There is at least one small piece and at least one large piece.',cat:'size',fn:cs=>cs.some(p=>p.size==='small')&&cs.some(p=>p.size==='large')}),
+    ()=>({text:'There are more large pieces than small pieces.',cat:'size',fn:cs=>cnt(cs,p=>p.size==='large')>cnt(cs,p=>p.size==='small')}),
+    ()=>({text:'All three shapes appear.',cat:'shape',fn:cs=>new Set(cs.map(p=>p.shape)).size===3}),
+  ],
+  hard:[
+    ()=>{const c=pick(COLORS);return {text:`The leftmost piece is ${c}.`,cat:'order and color',fn:cs=>cs[0].color===c}},
+    ()=>{const s=pick(SHAPES);return {text:`The rightmost piece is a ${s}.`,cat:'order and shape',fn:cs=>cs[cs.length-1].shape===s}},
+    ()=>({text:'Two neighboring pieces share a color.',cat:'order and color',fn:cs=>cs.some((p,i)=>i>0&&p.color===cs[i-1].color)}),
+    ()=>({text:'No two neighboring pieces share a shape.',cat:'order and shape',fn:cs=>!cs.some((p,i)=>i>0&&p.shape===cs[i-1].shape)}),
+    ()=>({text:'The leftmost and rightmost pieces are the same shape.',cat:'order and shape',fn:cs=>cs[0].shape===cs[cs.length-1].shape}),
+    ()=>{const c=pick(COLORS),s=pick(SHAPES);return {text:`The number of ${c} pieces equals the number of ${plural(s)}.`,cat:'color and shape counts',fn:cs=>cnt(cs,p=>p.color===c)===cnt(cs,p=>p.shape===s)}},
+    ()=>({text:'Sizes alternate along the row.',cat:'order and size',fn:cs=>cs.every((p,i)=>i===0||p.size!==cs[i-1].size)}),
+    ()=>{const a=pick(COLORS);let b=pick(COLORS);while(b===a)b=pick(COLORS);return {text:`Some ${a} piece sits to the left of some ${b} piece.`,cat:'order and color',fn:cs=>{const i=cs.findIndex(p=>p.color===a);return i>=0&&cs.slice(i+1).some(p=>p.color===b)}}},
+    ()=>({text:'Every large piece is a circle.',cat:'size and shape',fn:cs=>cs.every(p=>p.size!=='large'||p.shape==='circle')}),
+    ()=>({text:'The number of large pieces is exactly one.',cat:'size',fn:cs=>cnt(cs,p=>p.size==='large')===1}),
+    ()=>({text:'The leftmost piece is the only one of its color.',cat:'order and color',fn:cs=>cnt(cs,p=>p.color===cs[0].color)===1}),
+  ]
+};
+function makeRule(level){
+  for(let tries=0;tries<200;tries++){
+    const rule=pick(R[level])();
+    let hits=0; for(let i=0;i<400;i++) if(rule.fn(randomCase())) hits++;
+    const rate=hits/400; if(rate>=0.15&&rate<=0.85) return rule;
+  }
+  return pick(R.easy)();
+}
+
+/* ---------- state ---------- */
+let S=null;
+let draft=[], cur={shape:'circle',color:'red',size:'small'}, pred='none';
+let meta={won:0,best:null};
+try{ const m=JSON.parse(localStorage.getItem('precedent.meta')||'null'); if(m&&typeof m==='object') meta=Object.assign(meta,m);}catch(e){}
+function saveMeta(){ try{ localStorage.setItem('precedent.meta',JSON.stringify(meta)); }catch(e){} }
+
+function newRound(){
+  const level=$('difficulty').value;
+  const rule=makeRule(level);
+  const docket=[], seen=new Set();
+  let guard=0;
+  while((docket.filter(d=>d.ruling).length<2||docket.filter(d=>!d.ruling).length<2)&&guard++<2000){
+    const cs=randomCase(), k=key(cs); if(seen.has(k)) continue;
+    const r=rule.fn(cs);
+    if(r&&docket.filter(d=>d.ruling).length>=2) continue;
+    if(!r&&docket.filter(d=>!d.ruling).length>=2) continue;
+    seen.add(k); docket.push({cs,ruling:r,n:docket.length+1,pred:null});
+  }
+  S={level,rule,docket,seen,filings:0,predRight:0,predTotal:0,examsFailed:0,clerkUsed:false,over:false};
+  draft=[]; pred='none'; setPred('none');
+  $('exam').hidden=true; $('opinion').hidden=true; $('builder').hidden=false;
+  $('deskTitle').textContent='File a test case';
+  $('deskSub').textContent='A case is a row of one to four pieces, read left to right. Build one and see how the judge rules.';
+  $('verdict').textContent=''; $('verdict').className='verdict';
+  $('clerk').disabled=true; $('clerk').title='Available after six filings';
+  render();
+}
+
+function render(){
+  const f=$('forList'), a=$('againstList'); f.innerHTML=''; a.innerHTML='';
+  for(const d of S.docket){
+    const el=document.createElement('div'); el.className='case'+(d.fresh?' fresh':'');
+    let note='';
+    if(d.pred){ const hit=(d.pred==='for')===d.ruling; note=`<span class="pred-note ${hit?'hit':'miss'}">${hit?'called it':'missed'}</span>`; }
+    el.innerHTML=`<span class="num">${String(d.n).padStart(2,'0')}</span>${rowHTML(d.cs)}${note}`;
+    (d.ruling?f:a).appendChild(el); d.fresh=false;
+  }
+  if(!f.children.length) f.innerHTML='<div class="empty">Nothing yet.</div>';
+  if(!a.children.length) a.innerHTML='<div class="empty">Nothing yet.</div>';
+  $('sFilings').textContent=S.filings;
+  $('sPred').textContent=`${S.predRight} / ${S.predTotal}`;
+  $('sWon').textContent=meta.won;
+  $('sBest').textContent=meta.best==null?'–':`${meta.best} filing${meta.best===1?'':'s'}`;
+  renderSlots();
+}
+function renderSlots(){
+  const s=$('slots'); s.innerHTML='';
+  draft.forEach((p,i)=>{ const b=document.createElement('button'); b.className='slot'; b.title='Remove this piece'; b.setAttribute('aria-label',`Remove ${p.size} ${p.color} ${p.shape}`); b.innerHTML=pieceSVG(p,44); b.onclick=()=>{draft.splice(i,1);renderSlots();}; s.appendChild(b); });
+  for(let i=draft.length;i<4;i++){ const g=document.createElement('div'); g.className='slot ghost'; g.textContent='+'; s.appendChild(g); }
+  const h=document.createElement('span'); h.className='hint'; h.textContent=draft.length?describe(draft):'Pick a shape, color and size, then add pieces.'; s.appendChild(h);
+  $('addPiece').disabled=draft.length>=4; $('undoPiece').disabled=!draft.length; $('fileCase').disabled=!draft.length||S.over;
+}
+
+/* ---------- pickers ---------- */
+function seg(id,opts,getter,setter,labelFn){
+  const el=$(id); el.innerHTML='';
+  for(const o of opts){ const b=document.createElement('button'); b.type='button'; b.innerHTML=labelFn(o); b.setAttribute('aria-pressed',String(getter()===o)); b.onclick=()=>{setter(o); for(const x of el.children) x.setAttribute('aria-pressed',String(getter()===x.dataset.v));}; b.dataset.v=o; el.appendChild(b); }
+}
+seg('shapeSeg',SHAPES,()=>cur.shape,v=>cur.shape=v,o=>pieceSVG({shape:o,color:'blue',size:'large'},22)+o);
+seg('colorSeg',COLORS,()=>cur.color,v=>cur.color=v,o=>`<span class="dot" style="background:var(--p-${o})"></span>${o}`);
+seg('sizeSeg',SIZES,()=>cur.size,v=>cur.size=v,o=>pieceSVG({shape:'circle',color:'gold',size:o},22)+o);
+function setPred(v){ pred=v; for(const b of $('predSeg').children) b.setAttribute('aria-pressed',String(b.dataset.p===v)); }
+for(const b of $('predSeg').children) b.onclick=()=>setPred(b.dataset.p);
+
+$('addPiece').onclick=()=>{ if(draft.length<4){draft.push({...cur});renderSlots();} };
+$('undoPiece').onclick=()=>{ draft.pop(); renderSlots(); };
+$('clearCase').onclick=()=>{ draft=[]; renderSlots(); };
+$('randomCase').onclick=()=>{ draft=randomCase(); renderSlots(); };
+
+/* ---------- filing ---------- */
+$('fileCase').onclick=()=>{
+  if(!draft.length||S.over) return;
+  const cs=draft.map(p=>({...p})), k=key(cs);
+  const ruling=S.rule.fn(cs);
+  const dup=S.seen.has(k);
+  if(!dup){ S.seen.add(k); S.filings++; }
+  const entry={cs,ruling,n:S.docket.length+1,pred:pred==='none'?null:pred,fresh:true};
+  if(pred!=='none'){ S.predTotal++; if((pred==='for')===ruling) S.predRight++; }
+  if(dup){ toast('Already on the docket. The ruling is the same; it still counts as a filing for practice, not for score.'); }
+  S.docket.push(entry);
+  const v=$('verdict'); v.className='verdict '+(ruling?'for':'against');
+  let msg=`<span class="stamp">${ruling?'For':'Against'}</span> The judge rules ${ruling?'in favor':'against'}.`;
+  if(pred!=='none') msg+= (pred==='for')===ruling ? ' You called it.' : ' You missed. Rethink the rule.';
+  v.innerHTML=msg;
+  if(S.filings>=6&&!S.clerkUsed){ $('clerk').disabled=false; $('clerk').title='Learn what kind of thing the rule is about'; }
+  draft=[]; setPred('none'); render();
+};
+
+$('clerk').onclick=()=>{
+  if(S.clerkUsed) return; S.clerkUsed=true; $('clerk').disabled=true;
+  toast(`The clerk leans in: the rule is about ${S.rule.cat}.`, 5000);
+};
+
+$('giveUp').onclick=()=>{ if(S.over) return; endRound(false); };
+
+/* ---------- bar exam ---------- */
+let exam=null;
+$('sitBar').onclick=()=>{
+  if(S.over) return;
+  const cases=[]; const seen=new Set(S.seen); let f=0,a=0,guard=0;
+  while(cases.length<5&&guard++<5000){
+    const cs=randomCase(), k=key(cs); if(seen.has(k)) continue;
+    const r=S.rule.fn(cs);
+    if(r&&f>=3) continue; if(!r&&a>=3) continue;
+    seen.add(k); cases.push({cs,ruling:r,ans:null}); if(r)f++; else a++;
+  }
+  exam={cases,submitted:false};
+  $('builder').hidden=true; $('exam').hidden=false;
+  $('deskTitle').textContent='The bar exam';
+  $('deskSub').textContent='Five fresh cases. Call each one. Five for five passes.';
+  renderExam();
+};
+function renderExam(){
+  const x=$('exam'); x.innerHTML='';
+  exam.cases.forEach((c,i)=>{
+    const el=document.createElement('div'); el.className='exam-case';
+    if(exam.submitted) el.classList.add((c.ans==='for')===c.ruling?'right':'wrong');
+    const truth=exam.submitted?`<div class="truth">Judge: ${c.ruling?'FOR':'AGAINST'}</div>`:'';
+    el.innerHTML=`<div><div class="eyebrow">Question ${i+1}</div>${rowHTML(c.cs)}${truth}</div>
+      <div class="seg" role="group" aria-label="Your ruling for question ${i+1}">
+        <button type="button" data-a="for" aria-pressed="${c.ans==='for'}">For</button>
+        <button type="button" data-a="against" aria-pressed="${c.ans==='against'}">Against</button>
+      </div>`;
+    for(const b of el.querySelectorAll('[data-a]')) b.onclick=()=>{ if(exam.submitted) return; c.ans=b.dataset.a; renderExam(); };
+    x.appendChild(el);
+  });
+  const act=document.createElement('div'); act.className='actions';
+  if(!exam.submitted){
+    const ready=exam.cases.every(c=>c.ans);
+    act.innerHTML=`<button id="submitExam" class="primary" ${ready?'':'disabled'}>Submit answers</button><button id="backToDesk" class="quiet">Back to filing</button>`;
+    x.appendChild(act);
+    $('submitExam').onclick=gradeExam;
+    $('backToDesk').onclick=leaveExam;
+  } else {
+    const wrong=exam.cases.filter(c=>(c.ans==='for')!==c.ruling).length;
+    act.innerHTML=`<p class="sub" style="flex:1">${wrong?`You missed ${wrong}. The judge keeps the rule to themself. Back to the docket.`:'Five for five.'}</p>` + (wrong?`<button id="backToDesk" class="primary">Back to filing</button>`:'');
+    x.appendChild(act);
+    if(wrong) $('backToDesk').onclick=leaveExam;
+  }
+}
+function leaveExam(){ exam=null; $('exam').hidden=true; $('builder').hidden=false; $('deskTitle').textContent='File a test case'; $('deskSub').textContent='Back on the docket. Change one thing at a time.'; render(); }
+function gradeExam(){
+  exam.submitted=true;
+  const wrong=exam.cases.filter(c=>(c.ans==='for')!==c.ruling).length;
+  if(wrong){ S.examsFailed++; renderExam(); return; }
+  renderExam();
+  setTimeout(()=>endRound(true),600);
+}
+
+/* ---------- end ---------- */
+function rank(n,level){
+  const adj=level==='hard'?2:level==='easy'?-1:0;
+  if(n<=3+adj) return 'Chief Justice';
+  if(n<=6+adj) return 'Appellate judge';
+  if(n<=10+adj) return 'Trial judge';
+  return 'Admitted to the bar';
+}
+function endRound(won){
+  S.over=true;
+  $('exam').hidden=true; $('builder').hidden=true; $('opinion').hidden=false;
+  $('deskTitle').textContent=won?'Opinion of the court: you pass':'Opinion of the court';
+  $('deskSub').textContent=won?'You predicted five rulings from a rule you were never told. That is the job.':'The rule, for the record.';
+  const o=$('opinion');
+  let extra='';
+  if(won){
+    meta.won++; if(meta.best==null||S.filings<meta.best) meta.best=S.filings; saveMeta();
+    extra=`<div class="rank">Rank: ${rank(S.filings,S.level)} · ${S.filings} filing${S.filings===1?'':'s'} · predictions ${S.predRight}/${S.predTotal}${S.examsFailed?` · ${S.examsFailed} failed exam${S.examsFailed>1?'s':''}`:''}${S.clerkUsed?' · clerk consulted':''}</div>`;
+  } else {
+    extra=`<div class="rank">Round abandoned after ${S.filings} filing${S.filings===1?'':'s'}.</div>`;
+  }
+  o.innerHTML=`<div class="eyebrow">The secret rule was</div><div class="rule">${S.rule.text}</div>${extra}<div class="actions" style="margin-top:6px"><button id="again" class="primary">New judge</button></div>`;
+  $('again').onclick=newRound;
+  render();
+}
+
+/* ---------- misc ---------- */
+let toastT=null;
+function toast(msg,ms){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),ms||3200); }
+$('newRound').onclick=newRound;
+$('difficulty').onchange=()=>{ if(S&&S.filings===0&&!S.over) newRound(); else toast('Takes effect with the next judge.'); };
+
+newRound();
+})();
+</script>
+</body>
+</html>

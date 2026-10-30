@@ -5,478 +5,602 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
 <title>Precedent</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Manrope:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: a single docket column, max 960px. Rulings stack in two courts (For / Against); the filing desk sits below; the bar exam takes over the desk when sat. */
+/* Layout: a full-viewport 3D tribunal with a glass HUD. Top bar for bench and stats, a bottom filing desk that becomes the bar exam or the opinion, a docket drawer at right. Single committed dark world. */
 :root{
-  --bg:#f1f3f6; --paper:#ffffff; --paper-2:#e7ebf0; --ink:#17212b; --ink-2:#4b5968; --ink-3:#8593a3;
-  --line:#cfd6de; --accent:#2f3f9e; --accent-ink:#ffffff;
-  --for:#1d6b47; --for-bg:#e3f2ea; --against:#8a2130; --against-bg:#f7e4e7;
-  --p-red:#d6454a; --p-blue:#3a7bd5; --p-gold:#e0a21a; --p-stroke:rgba(0,0,0,.18);
-  --shadow:0 1px 2px rgba(23,33,43,.06),0 8px 24px rgba(23,33,43,.06);
-  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
-  --body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
-  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --bg:#070a12; --glass:rgba(10,14,26,.66); --glass-2:rgba(18,24,42,.72); --edge:rgba(227,184,90,.22);
+  --ink:#f1ecdf; --ink-2:#bdb6a4; --ink-3:#7e796c;
+  --gold:#e3b85a; --gold-2:#ffd981; --crimson:#d9485b; --crimson-2:#ff8a98; --azure:#5aa1e3;
+  --display:"Cinzel",Georgia,"Times New Roman",serif; --ui:"Manrope",ui-sans-serif,system-ui,sans-serif;
+  color-scheme:dark;
 }
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#10161d; --paper:#18202a; --paper-2:#1f2935; --ink:#e7ecf2; --ink-2:#b4bfcb; --ink-3:#7c8896;
-  --line:#2c3845; --accent:#8e9cf0; --accent-ink:#0f1420;
-  --for:#5fcf98; --for-bg:#163325; --against:#f08a99; --against-bg:#3a1b22;
-  --p-red:#e0575c; --p-blue:#5b96e8; --p-gold:#edb53a; --p-stroke:rgba(255,255,255,.22);
-  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3); color-scheme:dark }}
-:root[data-theme="dark"]{
-  --bg:#10161d; --paper:#18202a; --paper-2:#1f2935; --ink:#e7ecf2; --ink-2:#b4bfcb; --ink-3:#7c8896;
-  --line:#2c3845; --accent:#8e9cf0; --accent-ink:#0f1420;
-  --for:#5fcf98; --for-bg:#163325; --against:#f08a99; --against-bg:#3a1b22;
-  --p-red:#e0575c; --p-blue:#5b96e8; --p-gold:#edb53a; --p-stroke:rgba(255,255,255,.22);
-  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3); color-scheme:dark }
-
 *{box-sizing:border-box}
-html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
-.wrap{max-width:960px;margin:0 auto;display:grid;gap:20px}
-h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.1}
-button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:8px 14px;min-height:38px}
-button:hover{border-color:var(--ink-3)}
-button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-button:disabled{opacity:.45;cursor:not-allowed}
-button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
-button.quiet{background:transparent}
-select{font:inherit;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:7px 10px;min-height:38px}
-.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
-.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:14.5px;line-height:1.45;overflow:hidden;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0}
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0}
+.vignette{position:fixed;inset:0;pointer-events:none;z-index:1;background:radial-gradient(ellipse at 50% 45%,rgba(0,0,0,0) 45%,rgba(0,0,0,.55) 100%)}
+.hud{position:relative;z-index:2;height:100%;display:grid;grid-template-rows:auto 1fr auto;gap:10px;padding-block:max(12px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-bottom,0px));pointer-events:none}
+.hud > *{pointer-events:auto}
+.glass{background:var(--glass);border:1px solid var(--edge);border-radius:14px;backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);box-shadow:0 10px 40px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05)}
+h1,h2{font-family:var(--display);margin:0;line-height:1.05;text-wrap:balance}
+.top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.top > *{min-width:0;max-width:100%}
+.brand{display:flex;gap:12px;align-items:center;padding:10px 16px;flex-wrap:wrap}
+.brand h1{font-size:clamp(22px,3.2vw,30px);font-weight:900;letter-spacing:.08em;color:var(--gold-2);text-shadow:0 0 24px rgba(227,184,90,.35)}
+.brand .eyebrow{display:block}
+.eyebrow{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.topright{display:flex;gap:10px;align-items:center;padding:8px 12px;flex-wrap:wrap}
+.stat{display:grid;line-height:1.15;min-width:68px}
+.stat b{font-family:var(--display);font-size:17px;color:var(--ink);font-variant-numeric:tabular-nums;font-weight:700}
+.stat span{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+select,button{font:inherit;color:var(--ink)}
+select{background:var(--glass-2);border:1px solid var(--edge);border-radius:9px;padding:7px 10px;min-height:36px}
+button{cursor:pointer;background:var(--glass-2);border:1px solid var(--edge);border-radius:10px;padding:8px 14px;min-height:38px;transition:transform .12s,border-color .12s,background .12s}
+button:hover{border-color:rgba(227,184,90,.55);transform:translateY(-1px)}
+button:active{transform:translateY(0)}
+button:focus-visible,select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+button:disabled{opacity:.4;cursor:not-allowed;transform:none}
+button.gold{background:linear-gradient(180deg,#f0c86a,#c9972f);color:#1a1405;border-color:#ffe2a0;font-weight:700;letter-spacing:.02em;text-shadow:0 1px 0 rgba(255,255,255,.3)}
+button.gold:hover{filter:brightness(1.06)}
+button.ghost{background:transparent}
+button.icon{min-width:38px;padding:6px 10px}
 
-header{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:end;justify-content:space-between;padding-top:28px;border-bottom:1px solid var(--line);padding-bottom:16px}
-header h1{font-size:clamp(34px,6vw,52px);font-weight:800;letter-spacing:-.02em}
-header p{margin:4px 0 0;color:var(--ink-2);max-width:52ch}
-.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.mid{display:flex;justify-content:flex-end;align-items:flex-start;min-height:0}
+.docket{width:min(330px,100%);max-height:100%;overflow:auto;padding:12px 14px;display:none;flex-direction:column;gap:10px}
+.docket.open{display:flex}
+.docket h2{font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
+.docket .for h2{color:var(--gold-2)} .docket .against h2{color:var(--crimson-2)}
+.cases{display:grid;gap:6px;margin-top:6px}
+.case{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:8px;background:rgba(255,255,255,.04)}
+.case .num{font-size:10.5px;color:var(--ink-3);min-width:2.4ch;font-variant-numeric:tabular-nums}
+.row{display:flex;gap:4px;align-items:center}
+.row svg{width:30px;height:30px;flex:none}
+.pred-note{margin-left:auto;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase}
+.pred-note.hit{color:var(--gold-2)} .pred-note.miss{color:var(--crimson-2)}
+.empty{color:var(--ink-3);font-size:12.5px}
 
-.stats{display:flex;gap:18px;flex-wrap:wrap;color:var(--ink-2);font-size:13.5px}
-.stats b{color:var(--ink);font-weight:600}
-
-.courts{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media (max-width:640px){.courts{grid-template-columns:1fr}}
-.court{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px;box-shadow:var(--shadow);min-width:0}
-.court h2{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.court.for h2{color:var(--for)} .court.against h2{color:var(--against)}
-.stamp{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;padding:3px 7px;border-radius:4px;border:1.5px solid currentColor;text-transform:uppercase;transform:rotate(-2deg)}
-.cases{display:grid;gap:8px}
-.case{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:var(--paper-2);min-height:54px}
-.case .num{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);min-width:3.2ch}
-.case.fresh{animation:drop .5s cubic-bezier(.2,.9,.3,1.2)}
-@keyframes drop{from{transform:translateY(-8px) scale(.98);opacity:0}to{transform:none;opacity:1}}
-.row{display:flex;gap:6px;align-items:center;flex-wrap:nowrap}
-.row svg{width:40px;height:40px;flex:none}
-.empty{color:var(--ink-3);font-size:13px;padding:10px}
-.pred-note{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--ink-3);white-space:nowrap}
-.pred-note.hit{color:var(--for)} .pred-note.miss{color:var(--against)}
-
-.desk{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow);display:grid;gap:16px}
-.desk h2{font-size:20px;font-weight:700}
-.desk-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline}
-.builder{display:grid;gap:14px}
-.slots{display:flex;gap:8px;align-items:center;min-height:64px;padding:10px;border:1.5px dashed var(--line);border-radius:10px;background:var(--bg);flex-wrap:wrap}
-.slot{width:52px;height:52px;border-radius:8px;background:var(--paper);display:grid;place-items:center;border:1px solid var(--line);cursor:pointer;padding:0}
-.slot svg{width:44px;height:44px}
-.slot.ghost{border-style:dashed;background:transparent;cursor:default;color:var(--ink-3);font-size:22px}
-.slots .hint{color:var(--ink-3);font-size:13px;margin-left:6px}
-.picker{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
-.group{display:grid;gap:6px}
-.seg{display:flex;gap:4px;padding:3px;background:var(--paper-2);border-radius:9px;flex-wrap:wrap}
-.seg button{flex:1;border:none;background:transparent;min-height:36px;padding:6px 8px;border-radius:7px;display:flex;align-items:center;justify-content:center;gap:6px;color:var(--ink-2)}
-.seg button[aria-pressed="true"]{background:var(--paper);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12);font-weight:600}
-.seg svg{width:22px;height:22px}
-.dot{width:14px;height:14px;border-radius:50%;display:inline-block;border:1px solid var(--p-stroke)}
+.bottom{display:flex;justify-content:center}
+.desk{width:min(900px,100%);padding:12px 16px;display:grid;gap:10px;max-height:min(46vh,430px);overflow:auto}
+.desk-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.desk-head h2{font-size:18px;font-weight:700;letter-spacing:.04em;color:var(--ink)}
+.sub{margin:0;color:var(--ink-2);font-size:13px;max-width:70ch}
+.builder{display:grid;gap:12px}
+.picker{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.group{display:grid;gap:5px}
+.seg{display:flex;gap:4px;padding:3px;background:rgba(0,0,0,.35);border-radius:10px;border:1px solid rgba(255,255,255,.06);flex-wrap:wrap;min-width:0}
+.seg button{flex:1 1 auto;min-width:0;border:none;background:transparent;min-height:32px;padding:5px 6px;border-radius:7px;display:flex;align-items:center;justify-content:center;gap:6px;color:var(--ink-2);font-size:13px}
+.seg button[aria-pressed="true"]{background:rgba(227,184,90,.16);color:var(--ink);box-shadow:inset 0 0 0 1px rgba(227,184,90,.45)}
+.seg svg{width:20px;height:20px}
+.dot{width:13px;height:13px;border-radius:50%;display:inline-block;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.draftline{display:flex;gap:10px;align-items:center;flex-wrap:wrap;min-height:36px}
+.draftline .slots{display:flex;gap:6px}
+.draftline .slot{width:34px;height:34px;border-radius:7px;background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.14);display:grid;place-items:center;padding:0;min-height:0}
+.draftline .slot svg{width:28px;height:28px}
+.draftline .slot.filled{border-style:solid;border-color:rgba(227,184,90,.35)}
+.draftline .hint{color:var(--ink-3);font-size:12.5px}
 .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .actions .spacer{flex:1}
-.file-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line);padding-top:14px}
-.file-row .seg{flex:0 1 300px}
-.verdict{min-height:28px;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.verdict .stamp{transform:rotate(-3deg)}
-.verdict.for{color:var(--for)} .verdict.against{color:var(--against)}
-.sub{color:var(--ink-2);font-size:13.5px;margin:0}
-
-.exam{display:grid;gap:12px}
-.exam-case{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:10px 12px;border-radius:10px;background:var(--paper-2)}
-.exam-case .seg{min-width:200px}
-.exam-case.right{outline:2px solid var(--for)} .exam-case.wrong{outline:2px solid var(--against)}
-.exam-case .truth{font-family:var(--mono);font-size:11.5px;color:var(--ink-2)}
+.file-row{display:flex;gap:12px;flex-wrap:wrap;align-items:end;border-top:1px solid rgba(255,255,255,.08);padding-top:10px}
+.file-row .group{flex:0 1 280px}
+.verdict{min-height:24px;font-weight:600;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-family:var(--display);letter-spacing:.04em}
+.verdict.for{color:var(--gold-2)} .verdict.against{color:var(--crimson-2)}
+.exam{display:grid;gap:8px}
+.exam-case{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.04)}
+.exam-case .seg{min-width:190px}
+.exam-case.right{box-shadow:inset 0 0 0 1.5px var(--gold)} .exam-case.wrong{box-shadow:inset 0 0 0 1.5px var(--crimson)}
+.exam-case .truth{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
 @media (max-width:520px){.exam-case{grid-template-columns:1fr}}
-
-.opinion{border-left:4px solid var(--accent);padding:12px 16px;background:var(--paper-2);border-radius:0 10px 10px 0;display:grid;gap:6px}
-.opinion .rule{font-family:var(--display);font-size:22px;font-weight:700}
-.rank{font-family:var(--mono);font-size:12px;color:var(--ink-2)}
-
-details.help{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--paper)}
-details.help summary{cursor:pointer;font-weight:600}
-details.help p,details.help li{color:var(--ink-2);font-size:14px}
-details.help ul{padding-left:18px;margin:6px 0}
-.toast{position:fixed;left:50%;bottom:max(16px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:13.5px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .25s}
+.opinion{display:grid;gap:8px;padding:6px 2px}
+.opinion .rule{font-family:var(--display);font-size:clamp(20px,3.4vw,28px);font-weight:700;color:var(--gold-2);text-shadow:0 0 30px rgba(227,184,90,.3)}
+.rank{font-size:12.5px;color:var(--ink-2);letter-spacing:.04em}
+.toast{position:fixed;left:50%;top:max(72px,calc(env(safe-area-inset-top,0px) + 72px));transform:translateX(-50%);background:rgba(241,236,223,.94);color:#141822;padding:10px 16px;border-radius:999px;font-size:13.5px;box-shadow:0 10px 30px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .25s;z-index:5;max-width:min(92vw,560px);text-align:center}
 .toast.show{opacity:1}
-@media (prefers-reduced-motion:reduce){.case.fresh{animation:none}.toast{transition:none}}
+.tip{position:fixed;z-index:4;pointer-events:none;padding:6px 10px;border-radius:9px;font-size:12px;display:none;gap:6px;align-items:center}
+.tip.show{display:flex}
+.tip .tag{font-family:var(--display);letter-spacing:.1em;font-weight:700;font-size:11px}
+.tip .tag.for{color:var(--gold-2)} .tip .tag.against{color:var(--crimson-2)}
+.nogl{position:fixed;inset:0;z-index:9;display:none;place-items:center;padding:24px;text-align:center;background:var(--bg)}
+.nogl a{color:var(--gold-2)}
+details.help summary{cursor:pointer;color:var(--ink-2);font-size:13px}
+details.help p,details.help li{color:var(--ink-2);font-size:13px}
+details.help ul{padding-left:18px;margin:6px 0}
+@media (max-width:700px){.brand h1{font-size:20px}.stat{min-width:56px}.desk{max-height:52vh}.docket{width:100%}.picker{grid-template-columns:1fr 1fr}.desk-head p{display:none}}
+@media (max-width:460px){.picker{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){button{transition:none}.toast{transition:none}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div>
-      <div class="eyebrow">A game of inference</div>
-      <h1>Precedent</h1>
-      <p>The judge rules by a secret rule. Read the rulings, file your own test cases, and when you think you have it, sit the bar exam: predict five fresh rulings.</p>
-    </div>
-    <div class="controls">
-      <label class="eyebrow" for="difficulty">Bench</label>
-      <select id="difficulty">
-        <option value="easy">County court (easy)</option>
-        <option value="medium" selected>Circuit court (medium)</option>
-        <option value="hard">Supreme Court (hard)</option>
-      </select>
-      <button id="newRound" class="primary">New judge</button>
-    </div>
-  </header>
+<canvas id="gl"></canvas>
+<div class="vignette"></div>
 
-  <div class="stats">
-    <span>Filings this round: <b id="sFilings" class="mono">0</b></span>
-    <span>Predictions: <b id="sPred" class="mono">0 / 0</b></span>
-    <span>Rounds won: <b id="sWon" class="mono">0</b></span>
-    <span>Best: <b id="sBest" class="mono">–</b></span>
+<div class="hud">
+  <div class="top">
+    <div class="glass brand">
+      <div>
+        <span class="eyebrow">The Tribunal of</span>
+        <h1>PRECEDENT</h1>
+      </div>
+      <select id="difficulty" aria-label="Bench">
+        <option value="easy">County court</option>
+        <option value="medium" selected>Circuit court</option>
+        <option value="hard">Supreme Court</option>
+      </select>
+      <button id="newRound" class="gold">New judge</button>
+    </div>
+    <div class="glass topright">
+      <div class="stat"><b id="sFilings">0</b><span>Filings</span></div>
+      <div class="stat"><b id="sPred">0/0</b><span>Predicted</span></div>
+      <div class="stat"><b id="sWon">0</b><span>Won</span></div>
+      <div class="stat"><b id="sBest">–</b><span>Best</span></div>
+      <button id="toggleDocket" class="icon" title="Docket list" aria-pressed="false">Docket</button>
+      <button id="toggleSound" class="icon" title="Sound" aria-pressed="true">Sound on</button>
+    </div>
   </div>
 
-  <section class="courts" aria-label="Rulings so far">
-    <div class="court for">
-      <h2><span class="stamp">For</span> Ruled in favor</h2>
-      <div class="cases" id="forList"></div>
-    </div>
-    <div class="court against">
-      <h2><span class="stamp">Against</span> Ruled against</h2>
-      <div class="cases" id="againstList"></div>
-    </div>
-  </section>
+  <div class="mid">
+    <aside class="glass docket" id="docket" aria-label="Docket">
+      <div class="for"><h2>Ruled for</h2><div class="cases" id="forList"></div></div>
+      <div class="against"><h2>Ruled against</h2><div class="cases" id="againstList"></div></div>
+    </aside>
+  </div>
 
-  <section class="desk" id="desk">
-    <div class="desk-head">
-      <h2 id="deskTitle">File a test case</h2>
-      <p class="sub" id="deskSub">A case is a row of one to four pieces, read left to right. Build one and see how the judge rules.</p>
-    </div>
-
-    <div class="builder" id="builder">
-      <div class="slots" id="slots" aria-live="polite"></div>
-      <div class="picker">
-        <div class="group">
-          <div class="eyebrow">Shape</div>
-          <div class="seg" id="shapeSeg" role="group" aria-label="Shape"></div>
-        </div>
-        <div class="group">
-          <div class="eyebrow">Color</div>
-          <div class="seg" id="colorSeg" role="group" aria-label="Color"></div>
-        </div>
-        <div class="group">
-          <div class="eyebrow">Size</div>
-          <div class="seg" id="sizeSeg" role="group" aria-label="Size"></div>
-        </div>
+  <div class="bottom">
+    <section class="glass desk" id="desk">
+      <div class="desk-head">
+        <h2 id="deskTitle">File a test case</h2>
+        <p class="sub" id="deskSub">A case is a tray of one to four gems, read left to right. Build one and the Oracle rules on it. Gold is for, crimson is against.</p>
       </div>
-      <div class="actions">
-        <button id="addPiece" class="primary">Add piece</button>
-        <button id="undoPiece">Remove last</button>
-        <button id="clearCase" class="quiet">Clear</button>
-        <button id="randomCase" class="quiet">Random case</button>
-        <span class="spacer"></span>
-        <button id="clerk" class="quiet" disabled title="Available after six filings">Ask the clerk</button>
-        <button id="giveUp" class="quiet">Read the opinion</button>
-      </div>
-      <div class="file-row">
-        <div class="group" style="flex:0 1 300px">
-          <div class="eyebrow">Your prediction</div>
-          <div class="seg" id="predSeg" role="group" aria-label="Prediction">
-            <button data-p="for" aria-pressed="false">For</button>
-            <button data-p="against" aria-pressed="false">Against</button>
-            <button data-p="none" aria-pressed="true">No guess</button>
+      <div class="builder" id="builder">
+        <div class="draftline"><div class="slots" id="slots"></div><span class="hint" id="draftHint"></span></div>
+        <div class="picker">
+          <div class="group"><div class="eyebrow">Shape</div><div class="seg" id="shapeSeg" role="group" aria-label="Shape"></div></div>
+          <div class="group"><div class="eyebrow">Color</div><div class="seg" id="colorSeg" role="group" aria-label="Color"></div></div>
+          <div class="group"><div class="eyebrow">Size</div><div class="seg" id="sizeSeg" role="group" aria-label="Size"></div></div>
+        </div>
+        <div class="actions">
+          <button id="addPiece" class="gold">Set gem</button>
+          <button id="undoPiece">Remove last</button>
+          <button id="clearCase" class="ghost">Clear</button>
+          <button id="randomCase" class="ghost">Random</button>
+          <span class="spacer"></span>
+          <button id="clerk" class="ghost" disabled title="Available after six filings">Ask the clerk</button>
+          <button id="giveUp" class="ghost">Read the opinion</button>
+        </div>
+        <div class="file-row">
+          <div class="group">
+            <div class="eyebrow">Your prediction</div>
+            <div class="seg" id="predSeg" role="group" aria-label="Prediction">
+              <button data-p="for" aria-pressed="false">For</button>
+              <button data-p="against" aria-pressed="false">Against</button>
+              <button data-p="none" aria-pressed="true">No guess</button>
+            </div>
           </div>
+          <button id="fileCase" class="gold" style="min-height:44px;padding-inline:22px">File the case</button>
+          <button id="sitBar" style="min-height:44px">Sit the bar exam</button>
         </div>
-        <button id="fileCase" class="primary" style="min-height:46px;padding-inline:22px">File the case</button>
-        <button id="sitBar" style="min-height:46px">Sit the bar exam</button>
+        <div class="verdict" id="verdict" aria-live="polite"></div>
+        <details class="help">
+          <summary>How to play</summary>
+          <p>The Oracle rules by one secret rule. Each ruling on the galleries is consistent with it. File cases to test your theory, changing one thing at a time. When you think you have it, sit the bar: five fresh cases, call each one. Five for five wins. Fewer filings earns a higher rank. Hover a tray in the galleries to read it. <a href="classic.html" style="color:var(--gold-2)">Flat version</a>.</p>
+        </details>
       </div>
-      <div class="verdict" id="verdict" aria-live="polite"></div>
-    </div>
-
-    <div class="exam" id="exam" hidden></div>
-    <div class="opinion" id="opinion" hidden></div>
-  </section>
-
-  <details class="help">
-    <summary>How to play, and why this is a law game</summary>
-    <p>Every round the judge adopts one secret rule about a case. A case is a row of one to four pieces. Each piece has a shape (circle, square, triangle), a color (red, blue, gold), and a size (small or large). Order matters for some rules.</p>
-    <ul>
-      <li><b>Read the docket.</b> You start with a few rulings. The rule is consistent with all of them, and with many other rules you have not thought of yet.</li>
-      <li><b>File test cases.</b> Build a case and the judge rules on it. Good filings are the ones that split your live hypotheses: change one thing at a time.</li>
-      <li><b>Predict before you file.</b> Optional, but it is the honest test of whether you understand the rule yet.</li>
-      <li><b>Sit the bar.</b> Five fresh cases, you call each one. Five for five wins the round. Fewer filings before passing earns a higher rank.</li>
-      <li><b>Ask the clerk</b> after six filings to learn what kind of thing the rule is about. <b>Read the opinion</b> to give up and see the rule.</li>
-    </ul>
-    <p>This is how courts work. Nobody hands you the rule. You get rulings on facts, you infer the rule, you test it against new facts, and you find out you were wrong when the next case comes out the other way. Passing the bar here means the same thing it means in life: you can predict what the judge will do.</p>
-  </details>
+      <div class="exam" id="exam" hidden></div>
+      <div class="opinion" id="opinion" hidden></div>
+    </section>
+  </div>
 </div>
 <div class="toast" id="toast" role="status"></div>
+<div class="glass tip" id="tip"></div>
+<div class="nogl" id="nogl"><div><h2 style="color:var(--gold-2)">The tribunal needs WebGL</h2><p>Your browser could not start 3D graphics. <a href="classic.html">Play the flat version instead.</a></p></div></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function(){
 'use strict';
-const SHAPES=['circle','square','triangle'], COLORS=['red','blue','gold'], SIZES=['small','large'];
 const $=id=>document.getElementById(id);
-
-/* ---------- rendering pieces ---------- */
-function pieceSVG(p, px){
-  const s=px||40, c=s/2, r=p.size==='large'? s*0.40 : s*0.24;
-  const fill=`var(--p-${p.color})`, stroke='var(--p-stroke)';
-  let body='';
-  if(p.shape==='circle') body=`<circle cx="${c}" cy="${c}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>`;
-  else if(p.shape==='square') body=`<rect x="${c-r}" y="${c-r}" width="${2*r}" height="${2*r}" rx="${r*0.18}" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>`;
-  else { const h=r*1.15; body=`<polygon points="${c},${c-h} ${c+r*1.05},${c+h*0.75} ${c-r*1.05},${c+h*0.75}" fill="${fill}" stroke="${stroke}" stroke-width="1.5" stroke-linejoin="round"/>`; }
-  const label=`${p.size} ${p.color} ${p.shape}`;
-  return `<svg viewBox="0 0 ${s} ${s}" role="img" aria-label="${label}"><title>${label}</title>${body}</svg>`;
-}
-function rowHTML(cs){ return `<div class="row">${cs.map(p=>pieceSVG(p)).join('')}</div>`; }
-function describe(cs){ return cs.map(p=>`${p.size} ${p.color} ${p.shape}`).join(', '); }
-
-/* ---------- random ---------- */
-const rnd=n=>Math.floor(Math.random()*n);
-const pick=a=>a[rnd(a.length)];
-function randomPiece(){ return {shape:pick(SHAPES),color:pick(COLORS),size:pick(SIZES)}; }
-function randomCase(){ const n=1+rnd(4); return Array.from({length:n},randomPiece); }
+if(typeof THREE==='undefined'){ $('nogl').style.display='grid'; return; }
+const SHAPES=['circle','square','triangle'], COLORS=['red','blue','gold'], SIZES=['small','large'];
+const HEX={red:0xd8404f,blue:0x3f86e0,gold:0xe6b43c};
+const CSS={red:'#e05464',blue:'#5a9af0',gold:'#f0c24a'};
+const rnd=n=>Math.floor(Math.random()*n), pick=a=>a[rnd(a.length)];
+const randomPiece=()=>({shape:pick(SHAPES),color:pick(COLORS),size:pick(SIZES)});
+const randomCase=()=>Array.from({length:1+rnd(4)},randomPiece);
 const key=cs=>cs.map(p=>p.shape[0]+p.color[0]+p.size[0]).join('-');
-
-/* ---------- rules ---------- */
+const describe=cs=>cs.map(p=>`${p.size} ${p.color} ${p.shape}`).join(', ');
 const cnt=(cs,f)=>cs.filter(f).length;
 const plural=s=>s==='circle'?'circles':s==='square'?'squares':'triangles';
+
+/* ---------- 2D glyphs for the HUD ---------- */
+function glyph(p,px){
+  const s=px||30,c=s/2,r=p.size==='large'?s*.40:s*.24,f=CSS[p.color],st='rgba(255,255,255,.35)';
+  let b='';
+  if(p.shape==='circle') b=`<circle cx="${c}" cy="${c}" r="${r}" fill="${f}" stroke="${st}"/>`;
+  else if(p.shape==='square') b=`<rect x="${c-r}" y="${c-r}" width="${2*r}" height="${2*r}" rx="${r*.18}" fill="${f}" stroke="${st}"/>`;
+  else {const h=r*1.15;b=`<polygon points="${c},${c-h} ${c+r*1.05},${c+h*.75} ${c-r*1.05},${c+h*.75}" fill="${f}" stroke="${st}" stroke-linejoin="round"/>`;}
+  const l=`${p.size} ${p.color} ${p.shape}`;
+  return `<svg viewBox="0 0 ${s} ${s}" role="img" aria-label="${l}"><title>${l}</title>${b}</svg>`;
+}
+const rowHTML=cs=>`<div class="row">${cs.map(p=>glyph(p)).join('')}</div>`;
+
+/* ---------- rules ---------- */
 const R={
   easy:[
-    ()=>{const c=pick(COLORS);return {text:`At least one piece is ${c}.`,cat:'color',fn:cs=>cs.some(p=>p.color===c)}},
-    ()=>{const s=pick(SHAPES);return {text:`At least one piece is a ${s}.`,cat:'shape',fn:cs=>cs.some(p=>p.shape===s)}},
-    ()=>{const n=1+rnd(4);return {text:`The case has exactly ${n} piece${n>1?'s':''}.`,cat:'count',fn:cs=>cs.length===n}},
-    ()=>({text:'All pieces are the same color.',cat:'color',fn:cs=>cs.every(p=>p.color===cs[0].color)}),
-    ()=>({text:'All pieces are the same shape.',cat:'shape',fn:cs=>cs.every(p=>p.shape===cs[0].shape)}),
-    ()=>{const z=pick(SIZES);return {text:`Every piece is ${z}.`,cat:'size',fn:cs=>cs.every(p=>p.size===z)}},
-    ()=>{const n=2+rnd(2);return {text:`The case has at least ${n} pieces.`,cat:'count',fn:cs=>cs.length>=n}},
+    ()=>{const c=pick(COLORS);return {text:`At least one gem is ${c}.`,cat:'color',fn:cs=>cs.some(p=>p.color===c)}},
+    ()=>{const s=pick(SHAPES);return {text:`At least one gem is a ${s}.`,cat:'shape',fn:cs=>cs.some(p=>p.shape===s)}},
+    ()=>{const n=1+rnd(4);return {text:`The tray holds exactly ${n} gem${n>1?'s':''}.`,cat:'count',fn:cs=>cs.length===n}},
+    ()=>({text:'All gems are the same color.',cat:'color',fn:cs=>cs.every(p=>p.color===cs[0].color)}),
+    ()=>({text:'All gems are the same shape.',cat:'shape',fn:cs=>cs.every(p=>p.shape===cs[0].shape)}),
+    ()=>{const z=pick(SIZES);return {text:`Every gem is ${z}.`,cat:'size',fn:cs=>cs.every(p=>p.size===z)}},
+    ()=>{const n=2+rnd(2);return {text:`The tray holds at least ${n} gems.`,cat:'count',fn:cs=>cs.length>=n}},
   ],
   medium:[
-    ()=>{const c=pick(COLORS);return {text:`No piece is ${c}.`,cat:'color',fn:cs=>!cs.some(p=>p.color===c)}},
-    ()=>{const c=pick(COLORS);return {text:`At least two pieces are ${c}.`,cat:'color',fn:cs=>cnt(cs,p=>p.color===c)>=2}},
+    ()=>{const c=pick(COLORS);return {text:`No gem is ${c}.`,cat:'color',fn:cs=>!cs.some(p=>p.color===c)}},
+    ()=>{const c=pick(COLORS);return {text:`At least two gems are ${c}.`,cat:'color',fn:cs=>cnt(cs,p=>p.color===c)>=2}},
     ()=>{const a=pick(SHAPES);let b=pick(SHAPES);while(b===a)b=pick(SHAPES);return {text:`There are more ${plural(a)} than ${plural(b)}.`,cat:'shape',fn:cs=>cnt(cs,p=>p.shape===a)>cnt(cs,p=>p.shape===b)}},
-    ()=>({text:'The number of pieces is even.',cat:'count',fn:cs=>cs.length%2===0}),
-    ()=>({text:'The number of pieces is odd.',cat:'count',fn:cs=>cs.length%2===1}),
+    ()=>({text:'The number of gems is even.',cat:'count',fn:cs=>cs.length%2===0}),
+    ()=>({text:'The number of gems is odd.',cat:'count',fn:cs=>cs.length%2===1}),
     ()=>{const z=pick(SIZES),s=pick(SHAPES);return {text:`There is a ${z} ${s}.`,cat:'size and shape',fn:cs=>cs.some(p=>p.size===z&&p.shape===s)}},
     ()=>{const c=pick(COLORS),s=pick(SHAPES);return {text:`There is a ${c} ${s}.`,cat:'color and shape',fn:cs=>cs.some(p=>p.color===c&&p.shape===s)}},
     ()=>({text:'Exactly two different colors appear.',cat:'color',fn:cs=>new Set(cs.map(p=>p.color)).size===2}),
-    ()=>({text:'There is at least one small piece and at least one large piece.',cat:'size',fn:cs=>cs.some(p=>p.size==='small')&&cs.some(p=>p.size==='large')}),
-    ()=>({text:'There are more large pieces than small pieces.',cat:'size',fn:cs=>cnt(cs,p=>p.size==='large')>cnt(cs,p=>p.size==='small')}),
+    ()=>({text:'There is at least one small gem and at least one large gem.',cat:'size',fn:cs=>cs.some(p=>p.size==='small')&&cs.some(p=>p.size==='large')}),
+    ()=>({text:'There are more large gems than small gems.',cat:'size',fn:cs=>cnt(cs,p=>p.size==='large')>cnt(cs,p=>p.size==='small')}),
     ()=>({text:'All three shapes appear.',cat:'shape',fn:cs=>new Set(cs.map(p=>p.shape)).size===3}),
   ],
   hard:[
-    ()=>{const c=pick(COLORS);return {text:`The leftmost piece is ${c}.`,cat:'order and color',fn:cs=>cs[0].color===c}},
-    ()=>{const s=pick(SHAPES);return {text:`The rightmost piece is a ${s}.`,cat:'order and shape',fn:cs=>cs[cs.length-1].shape===s}},
-    ()=>({text:'Two neighboring pieces share a color.',cat:'order and color',fn:cs=>cs.some((p,i)=>i>0&&p.color===cs[i-1].color)}),
-    ()=>({text:'No two neighboring pieces share a shape.',cat:'order and shape',fn:cs=>!cs.some((p,i)=>i>0&&p.shape===cs[i-1].shape)}),
-    ()=>({text:'The leftmost and rightmost pieces are the same shape.',cat:'order and shape',fn:cs=>cs[0].shape===cs[cs.length-1].shape}),
-    ()=>{const c=pick(COLORS),s=pick(SHAPES);return {text:`The number of ${c} pieces equals the number of ${plural(s)}.`,cat:'color and shape counts',fn:cs=>cnt(cs,p=>p.color===c)===cnt(cs,p=>p.shape===s)}},
-    ()=>({text:'Sizes alternate along the row.',cat:'order and size',fn:cs=>cs.every((p,i)=>i===0||p.size!==cs[i-1].size)}),
-    ()=>{const a=pick(COLORS);let b=pick(COLORS);while(b===a)b=pick(COLORS);return {text:`Some ${a} piece sits to the left of some ${b} piece.`,cat:'order and color',fn:cs=>{const i=cs.findIndex(p=>p.color===a);return i>=0&&cs.slice(i+1).some(p=>p.color===b)}}},
-    ()=>({text:'Every large piece is a circle.',cat:'size and shape',fn:cs=>cs.every(p=>p.size!=='large'||p.shape==='circle')}),
-    ()=>({text:'The number of large pieces is exactly one.',cat:'size',fn:cs=>cnt(cs,p=>p.size==='large')===1}),
-    ()=>({text:'The leftmost piece is the only one of its color.',cat:'order and color',fn:cs=>cnt(cs,p=>p.color===cs[0].color)===1}),
+    ()=>{const c=pick(COLORS);return {text:`The leftmost gem is ${c}.`,cat:'order and color',fn:cs=>cs[0].color===c}},
+    ()=>{const s=pick(SHAPES);return {text:`The rightmost gem is a ${s}.`,cat:'order and shape',fn:cs=>cs[cs.length-1].shape===s}},
+    ()=>({text:'Two neighboring gems share a color.',cat:'order and color',fn:cs=>cs.some((p,i)=>i>0&&p.color===cs[i-1].color)}),
+    ()=>({text:'No two neighboring gems share a shape.',cat:'order and shape',fn:cs=>!cs.some((p,i)=>i>0&&p.shape===cs[i-1].shape)}),
+    ()=>({text:'The leftmost and rightmost gems are the same shape.',cat:'order and shape',fn:cs=>cs[0].shape===cs[cs.length-1].shape}),
+    ()=>{const c=pick(COLORS),s=pick(SHAPES);return {text:`The number of ${c} gems equals the number of ${plural(s)}.`,cat:'color and shape counts',fn:cs=>cnt(cs,p=>p.color===c)===cnt(cs,p=>p.shape===s)}},
+    ()=>({text:'Sizes alternate along the tray.',cat:'order and size',fn:cs=>cs.every((p,i)=>i===0||p.size!==cs[i-1].size)}),
+    ()=>{const a=pick(COLORS);let b=pick(COLORS);while(b===a)b=pick(COLORS);return {text:`Some ${a} gem sits to the left of some ${b} gem.`,cat:'order and color',fn:cs=>{const i=cs.findIndex(p=>p.color===a);return i>=0&&cs.slice(i+1).some(p=>p.color===b)}}},
+    ()=>({text:'Every large gem is a circle.',cat:'size and shape',fn:cs=>cs.every(p=>p.size!=='large'||p.shape==='circle')}),
+    ()=>({text:'Exactly one gem is large.',cat:'size',fn:cs=>cnt(cs,p=>p.size==='large')===1}),
+    ()=>({text:'The leftmost gem is the only one of its color.',cat:'order and color',fn:cs=>cnt(cs,p=>p.color===cs[0].color)===1}),
   ]
 };
 function makeRule(level){
-  for(let tries=0;tries<200;tries++){
-    const rule=pick(R[level])();
-    let hits=0; for(let i=0;i<400;i++) if(rule.fn(randomCase())) hits++;
-    const rate=hits/400; if(rate>=0.15&&rate<=0.85) return rule;
-  }
+  for(let t=0;t<200;t++){const r=pick(R[level])();let h=0;for(let i=0;i<400;i++)if(r.fn(randomCase()))h++;const rate=h/400;if(rate>=.15&&rate<=.85)return r;}
   return pick(R.easy)();
 }
 
-/* ---------- state ---------- */
-let S=null;
-let draft=[], cur={shape:'circle',color:'red',size:'small'}, pred='none';
+/* ---------- audio ---------- */
+let AC=null, soundOn=true;
+function ac(){ if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ AC=null; } } if(AC&&AC.state==='suspended') AC.resume(); return AC; }
+function tone(freq,dur,type,gain,when){ const a=ac(); if(!a||!soundOn) return; const o=a.createOscillator(),g=a.createGain(); o.type=type||'sine'; o.frequency.value=freq; g.gain.setValueAtTime(0.0001,a.currentTime+(when||0)); g.gain.exponentialRampToValueAtTime(gain||.2,a.currentTime+(when||0)+.01); g.gain.exponentialRampToValueAtTime(0.0001,a.currentTime+(when||0)+dur); o.connect(g).connect(a.destination); o.start(a.currentTime+(when||0)); o.stop(a.currentTime+(when||0)+dur+.05); }
+function gavel(){ const a=ac(); if(!a||!soundOn) return; const buf=a.createBuffer(1,a.sampleRate*.25,a.sampleRate),d=buf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,4); const s=a.createBufferSource(); s.buffer=buf; const f=a.createBiquadFilter(); f.type='lowpass'; f.frequency.value=900; const g=a.createGain(); g.gain.value=.5; s.connect(f).connect(g).connect(a.destination); s.start(); tone(110,.35,'sine',.35); tone(75,.5,'triangle',.25,.02); }
+function chimeFor(){ tone(659,.5,'sine',.15); tone(988,.7,'sine',.12,.08); tone(1319,.9,'sine',.08,.16); }
+function chimeAgainst(){ tone(196,.6,'sawtooth',.08); tone(185,.7,'triangle',.12,.05); }
+function click(){ tone(1400,.05,'square',.03); }
+function fanfare(){ [523,659,784,1047].forEach((f,i)=>tone(f,.6,'sine',.14,i*.12)); tone(1319,1.2,'sine',.1,.5); }
+
+/* ---------- three.js world ---------- */
+let renderer,scene,camera,clock,THREE_OK=true;
+const world={slabs:[],galleryFor:[],galleryAgainst:[],tweens:[],altar:null,draftGroup:null,oracle:null,beam:null,dust:null,stars:null,halo:null,eyeMat:null,glowCol:new THREE.Color(0xe3b85a),glowTarget:new THREE.Color(0xf1ecdf),hover:null};
+const mouse={x:0,y:0,tx:0,ty:0,active:false,px:0,py:0};
+const easeOutCubic=t=>1-Math.pow(1-t,3), easeInOutCubic=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2, easeOutBack=t=>{const c1=1.70158,c3=c1+1;return 1+c3*Math.pow(t-1,3)+c1*Math.pow(t-1,2)};
+function tween(apply,dur,ease){ return new Promise(res=>{ world.tweens.push({apply,dur,ease:ease||easeInOutCubic,t:0,res}); }); }
+function tweenVec(v,to,dur,ease){ const from=v.clone(); return tween(t=>v.lerpVectors(from,to,t),dur,ease); }
+function tweenNum(obj,k,to,dur,ease){ const from=obj[k]; return tween(t=>{obj[k]=from+(to-from)*t},dur,ease); }
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+function marbleTexture(base,vein,size){
+  const c=document.createElement('canvas'); c.width=c.height=size||512; const x=c.getContext('2d');
+  x.fillStyle=base; x.fillRect(0,0,c.width,c.height);
+  for(let i=0;i<70;i++){ x.beginPath(); let px=Math.random()*c.width,py=Math.random()*c.height; x.moveTo(px,py); const dx=(Math.random()-.5)*120, dy=(Math.random()-.5)*120; for(let j=0;j<5;j++){ const nx=px+dx+(Math.random()-.5)*60, ny=py+dy+(Math.random()-.5)*60; x.quadraticCurveTo(px+(Math.random()-.5)*40,py+(Math.random()-.5)*40,nx,ny); px=nx; py=ny; } x.strokeStyle=vein; x.globalAlpha=.025+Math.random()*.055; x.lineWidth=.4+Math.random()*1.3; x.stroke(); }
+  x.globalAlpha=1;
+  const g=x.createRadialGradient(c.width/2,c.height/2,10,c.width/2,c.height/2,c.width*.7); g.addColorStop(0,'rgba(255,255,255,.05)'); g.addColorStop(1,'rgba(0,0,0,.25)'); x.fillStyle=g; x.fillRect(0,0,c.width,c.height);
+  const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping; return t;
+}
+function haloTexture(){ const c=document.createElement('canvas'); c.width=c.height=256; const x=c.getContext('2d'); const g=x.createRadialGradient(128,128,0,128,128,128); g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(.25,'rgba(255,255,255,.55)'); g.addColorStop(1,'rgba(255,255,255,0)'); x.fillStyle=g; x.fillRect(0,0,256,256); return new THREE.CanvasTexture(c); }
+function textSprite(text,color,px,font){
+  const c=document.createElement('canvas'); const x=c.getContext('2d'); const f=`${px||64}px ${font||'Cinzel, Georgia, serif'}`; x.font=f; const w=Math.ceil(x.measureText(text).width)+40; c.width=w; c.height=(px||64)*1.6; x.font=f; x.textBaseline='middle'; x.textAlign='center';
+  x.shadowColor=color; x.shadowBlur=24; x.fillStyle=color; x.fillText(text,w/2,c.height/2); x.shadowBlur=0; x.fillStyle='rgba(255,255,255,.85)'; x.globalAlpha=.6; x.fillText(text,w/2,c.height/2);
+  const t=new THREE.CanvasTexture(c); t.minFilter=THREE.LinearFilter; const m=new THREE.SpriteMaterial({map:t,transparent:true,depthWrite:false,fog:false}); const s=new THREE.Sprite(m); const h=1; s.scale.set(h*w/c.height,h,1); return s;
+}
+
+const GEO={}, MAT={};
+function initGeo(){
+  GEO.sphere=new THREE.SphereGeometry(.3,40,28);
+  GEO.cube=new THREE.BoxGeometry(.5,.5,.5);
+  GEO.pyr=new THREE.ConeGeometry(.38,.6,3); GEO.pyr.rotateY(Math.PI/6);
+  GEO.slab=new THREE.BoxGeometry(2.7,.16,.95);
+  GEO.socket=new THREE.CylinderGeometry(.33,.36,.04,32);
+  for(const c of COLORS){ MAT[c]=new THREE.MeshPhysicalMaterial({color:HEX[c],metalness:.2,roughness:.16,clearcoat:1,clearcoatRoughness:.08,emissive:HEX[c],emissiveIntensity:.14,reflectivity:.8}); }
+  MAT.slab=new THREE.MeshStandardMaterial({map:marbleTexture('#0f1320','#8f93a8'),metalness:.35,roughness:.45});
+  MAT.slabEdge=new THREE.MeshStandardMaterial({color:0xe3b85a,metalness:1,roughness:.3,emissive:0x5a4310,emissiveIntensity:.25});
+  MAT.socket=new THREE.MeshStandardMaterial({color:0x2a2f45,metalness:.6,roughness:.35});
+}
+function pieceMesh(p){
+  const g=p.shape==='circle'?GEO.sphere:p.shape==='square'?GEO.cube:GEO.pyr;
+  const m=new THREE.Mesh(g,MAT[p.color]); m.castShadow=true; m.receiveShadow=true;
+  const s=p.size==='large'?1:.62; m.scale.setScalar(s);
+  m.position.y=(p.shape==='circle'?.3:p.shape==='square'?.25:.3)*s+.08;
+  if(p.shape==='square') m.rotation.y=Math.PI/4*(Math.random()<.5?1:.5);
+  m.userData.spin=(Math.random()-.5)*.6;
+  return m;
+}
+function makeSlab(cs){
+  const g=new THREE.Group();
+  const slab=new THREE.Mesh(GEO.slab,MAT.slab); slab.castShadow=true; slab.receiveShadow=true; g.add(slab);
+  const edge=new THREE.Mesh(new THREE.BoxGeometry(2.78,.05,1.03),MAT.slabEdge); edge.position.y=-.06; g.add(edge);
+  const n=cs.length, offs=n===1?[0]:n===2?[-.5,.5]:n===3?[-.85,0,.85]:[-1.0,-.34,.34,1.0];
+  cs.forEach((p,i)=>{ const pm=pieceMesh(p); pm.position.x=offs[i]; g.add(pm); });
+  g.userData.cs=cs; g.userData.pieces=g.children.slice(2);
+  return g;
+}
+function gallerySlot(side,i){ const tier=Math.floor(i/7), col=i%7; return new THREE.Vector3(side*(5.6+tier*1.05), .55+tier*1.15, 3.6-col*1.2); }
+
+function initWorld(){
+  const canvas=$('gl');
+  try{ renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'}); }catch(e){ THREE_OK=false; $('nogl').style.display='grid'; return; }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2)); renderer.setSize(window.innerWidth,window.innerHeight,false);
+  renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap; renderer.outputEncoding=THREE.sRGBEncoding; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.15;
+  scene=new THREE.Scene(); scene.background=new THREE.Color(0x070a12); scene.fog=new THREE.FogExp2(0x0a0e1b,.021);
+  camera=new THREE.PerspectiveCamera(42,window.innerWidth/window.innerHeight,.1,200); camera.position.set(0,8.4,14.6);
+  clock=new THREE.Clock(); initGeo();
+
+  scene.add(new THREE.HemisphereLight(0x5a6a9a,0x0b0810,.55));
+  const key=new THREE.SpotLight(0xfff1d6,1.25,60,Math.PI/5,.5,1); key.position.set(3,16,9); key.castShadow=true; key.shadow.mapSize.set(2048,2048); key.shadow.bias=-.0004; key.target.position.set(0,0,0); scene.add(key,key.target);
+  const rim=new THREE.DirectionalLight(0x6fa0ff,.45); rim.position.set(-8,6,-12); scene.add(rim);
+  const lFor=new THREE.PointLight(0xe3b85a,1.1,18,2); lFor.position.set(-6.5,4.2,-1); scene.add(lFor);
+  const lAg=new THREE.PointLight(0xd9485b,1.1,18,2); lAg.position.set(6.5,4.2,-1); scene.add(lAg);
+  const oracleLight=new THREE.PointLight(0xf1ecdf,.9,26,2); oracleLight.position.set(0,3.9,-7.4); scene.add(oracleLight); world.oracleLight=oracleLight;
+
+  // dais
+  const dais=new THREE.Mesh(new THREE.CylinderGeometry(9.5,10.2,.6,96),new THREE.MeshStandardMaterial({map:marbleTexture('#0b0e19','#6b7290',1024),metalness:.4,roughness:.5})); dais.position.y=-.3; dais.receiveShadow=true; scene.add(dais);
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(9.55,.07,16,180),MAT.slabEdge); ring.rotation.x=Math.PI/2; ring.position.y=.01; scene.add(ring);
+  const ring2=new THREE.Mesh(new THREE.TorusGeometry(3.4,.04,12,140),MAT.slabEdge); ring2.rotation.x=Math.PI/2; ring2.position.y=.02; ring2.position.z=.9; scene.add(ring2);
+  for(let i=0;i<24;i++){ const a=i/24*Math.PI*2; const tick=new THREE.Mesh(new THREE.BoxGeometry(.06,.02,.5),MAT.slabEdge); tick.position.set(Math.cos(a)*9.1,.02,Math.sin(a)*9.1); tick.rotation.y=-a; scene.add(tick); }
+
+  // galleries: stepped marble risers
+  const riserMat=new THREE.MeshStandardMaterial({map:marbleTexture('#0d1120','#7a8098'),metalness:.3,roughness:.55});
+  for(const side of [-1,1]){ for(let tier=0;tier<3;tier++){ const r=new THREE.Mesh(new THREE.BoxGeometry(1.5,.5+tier*1.15,9.2),riserMat); r.position.set(side*(5.6+tier*1.05),(.5+tier*1.15)/2-.0,0); r.receiveShadow=true; r.castShadow=true; scene.add(r); const lip=new THREE.Mesh(new THREE.BoxGeometry(1.56,.04,9.26),MAT.slabEdge); lip.position.set(r.position.x,.5+tier*1.15,0); scene.add(lip); } }
+  const addSigns=()=>{ const sFor=textSprite('FOR','#ffd981',96); sFor.position.set(-6.4,4.6,-5.2); sFor.scale.multiplyScalar(1.5); scene.add(sFor); const sAg=textSprite('AGAINST','#ff8a98',96); sAg.position.set(6.4,4.6,-5.2); sAg.scale.multiplyScalar(1.5); scene.add(sAg); };
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(addSigns,addSigns); else addSigns();
+
+  // the Oracle: monolith bench with an eye
+  const mono=new THREE.Mesh(new THREE.BoxGeometry(5.2,7.2,1.3),new THREE.MeshStandardMaterial({map:marbleTexture('#090b14','#5d627c'),metalness:.5,roughness:.4})); mono.position.set(0,3.6,-9.2); mono.castShadow=true; mono.receiveShadow=true; scene.add(mono);
+  const monoCap=new THREE.Mesh(new THREE.BoxGeometry(5.5,.12,1.5),MAT.slabEdge); monoCap.position.set(0,7.26,-9.2); scene.add(monoCap);
+  for(const side of [-1,1]){ const pil=new THREE.Mesh(new THREE.CylinderGeometry(.42,.5,9.5,24),riserMat); pil.position.set(side*4.3,4.75,-9.4); pil.castShadow=true; scene.add(pil); const cap=new THREE.Mesh(new THREE.CylinderGeometry(.6,.42,.3,24),MAT.slabEdge); cap.position.set(side*4.3,9.6,-9.4); scene.add(cap); const fl=new THREE.Mesh(new THREE.SphereGeometry(.22,16,12),new THREE.MeshBasicMaterial({color:0xffe6a8,fog:false})); fl.position.set(side*4.3,9.95,-9.4); scene.add(fl); const pl=new THREE.PointLight(0xffd27a,.6,14,2); pl.position.copy(fl.position); scene.add(pl); }
+  const eyeRing=new THREE.Mesh(new THREE.TorusGeometry(.95,.09,20,80),MAT.slabEdge); eyeRing.position.set(0,3.9,-8.5); scene.add(eyeRing);
+  world.eyeMat=new THREE.MeshBasicMaterial({color:0xf1ecdf,fog:false});
+  const eye=new THREE.Mesh(new THREE.SphereGeometry(.62,32,24),world.eyeMat); eye.position.set(0,3.9,-8.5); scene.add(eye); world.oracle=eye;
+  const haloTex=haloTexture();
+  const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:haloTex,color:0xf1ecdf,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:.75,fog:false})); halo.position.copy(eye.position); halo.scale.set(4.5,4.5,1); scene.add(halo); world.halo=halo;
+  // beam
+  const beam=new THREE.Mesh(new THREE.CylinderGeometry(1.1,2.2,9,48,1,true),new THREE.MeshBasicMaterial({color:0xe3b85a,transparent:true,opacity:0,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false,fog:false})); beam.position.set(0,4.5,-4); scene.add(beam); world.beam=beam;
+  world.beamLight=new THREE.PointLight(0xe3b85a,0,14,2); world.beamLight.position.set(0,3,-4); scene.add(world.beamLight);
+
+  // altar for the draft
+  const altar=new THREE.Mesh(new THREE.CylinderGeometry(1.9,2.1,.7,48),riserMat); altar.position.set(0,.35,.9); altar.castShadow=true; altar.receiveShadow=true; scene.add(altar);
+  const altarLip=new THREE.Mesh(new THREE.TorusGeometry(1.92,.04,12,96),MAT.slabEdge); altarLip.rotation.x=Math.PI/2; altarLip.position.set(0,.71,.9); scene.add(altarLip);
+  world.altarTop=new THREE.Vector3(0,.78,.9);
+  const shaft=new THREE.Mesh(new THREE.CylinderGeometry(.9,2.3,10,40,1,true),new THREE.MeshBasicMaterial({color:0xfff0c8,transparent:true,opacity:.055,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false,fog:false})); shaft.position.set(0,5.7,.9); scene.add(shaft);
+  const sockets=new THREE.Group(); [-1.0,-.34,.34,1.0].forEach(x=>{const s=new THREE.Mesh(GEO.socket,MAT.socket); s.position.set(x,.72,.9); sockets.add(s);}); scene.add(sockets);
+
+  // stars and dust
+  const sg=new THREE.BufferGeometry(); const sp=[]; for(let i=0;i<1800;i++){ const r=60+Math.random()*40, th=Math.random()*Math.PI*2, ph=Math.acos(2*Math.random()-1); sp.push(r*Math.sin(ph)*Math.cos(th), Math.abs(r*Math.cos(ph))*.8-6, r*Math.sin(ph)*Math.sin(th)); } sg.setAttribute('position',new THREE.Float32BufferAttribute(sp,3));
+  world.stars=new THREE.Points(sg,new THREE.PointsMaterial({color:0xcfd6ff,size:.35,sizeAttenuation:true,transparent:true,opacity:.8,fog:false})); scene.add(world.stars);
+  const dg=new THREE.BufferGeometry(); const dp=[]; for(let i=0;i<500;i++) dp.push((Math.random()-.5)*26,Math.random()*12,(Math.random()-.5)*26-2); dg.setAttribute('position',new THREE.Float32BufferAttribute(dp,3));
+  world.dust=new THREE.Points(dg,new THREE.PointsMaterial({color:0xe3b85a,size:.07,transparent:true,opacity:.55,blending:THREE.AdditiveBlending,depthWrite:false,map:haloTex})); scene.add(world.dust);
+
+  window.addEventListener('resize',onResize);
+  window.addEventListener('pointermove',e=>{ mouse.active=true; mouse.px=e.clientX; mouse.py=e.clientY; mouse.tx=(e.clientX/window.innerWidth-.5)*2; mouse.ty=(e.clientY/window.innerHeight-.5)*2; });
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden) clock.getDelta(); });
+  requestAnimationFrame(loop);
+}
+function onResize(){ if(!renderer) return; camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth,window.innerHeight,false); }
+
+const ray=new THREE.Raycaster(), ndc=new THREE.Vector2();
+let lastHoverCheck=0;
+function loop(){
+  requestAnimationFrame(loop);
+  const dt=Math.min(clock.getDelta(),.05), t=clock.elapsedTime;
+  for(let i=world.tweens.length-1;i>=0;i--){ const tw=world.tweens[i]; tw.t+=dt*1000; const k=Math.min(1,tw.t/tw.dur); tw.apply(tw.ease(k)); if(k>=1){ world.tweens.splice(i,1); tw.res(); } }
+  mouse.x+=(mouse.tx-mouse.x)*.05; mouse.y+=(mouse.ty-mouse.y)*.05;
+  const driftX=Math.sin(t*.17)*.5, driftY=Math.cos(t*.13)*.25;
+  camera.position.x=driftX+mouse.x*1.4; camera.position.y=8.4+driftY-mouse.y*.6; camera.lookAt(0,1.6,-2.2);
+  const pulse=.75+Math.sin(t*2.1)*.12; world.halo.material.opacity=pulse; world.halo.scale.setScalar(4.2+Math.sin(t*2.1)*.35);
+  world.glowCol.lerp(world.glowTarget,.04); world.eyeMat.color.copy(world.glowCol); world.halo.material.color.copy(world.glowCol); world.oracleLight.color.copy(world.glowCol);
+  world.stars.rotation.y=t*.004; world.dust.rotation.y=t*.02; world.dust.position.y=Math.sin(t*.3)*.3;
+  if(world.draftGroup) world.draftGroup.userData.pieces.forEach((m,i)=>{ m.rotation.y+=dt*(.5+i*.1); m.position.y=m.userData.baseY+Math.sin(t*2+i)*.03; });
+  for(const g of world.slabs) if(g.userData.float) g.position.y=g.userData.baseY+Math.sin(t*1.4+g.userData.phase)*.08;
+  if(mouse.active&&t-lastHoverCheck>.08){ lastHoverCheck=t; hoverCheck(); }
+  renderer.render(scene,camera);
+}
+function hoverCheck(){
+  ndc.set(mouse.tx,-mouse.ty); ray.setFromCamera(ndc,camera);
+  const meshes=[]; for(const g of world.slabs) if(g.userData.placed) meshes.push(g.children[0]);
+  const hits=ray.intersectObjects(meshes,false);
+  const tip=$('tip');
+  if(hits.length){ const g=hits[0].object.parent; if(world.hover!==g){ world.hover=g; tip.innerHTML=`<span class="tag ${g.userData.ruling?'for':'against'}">${g.userData.ruling?'FOR':'AGAINST'}</span>${rowHTML(g.userData.cs)}`; } tip.classList.add('show'); tip.style.left=Math.min(window.innerWidth-220,mouse.px+14)+'px'; tip.style.top=(mouse.py+14)+'px'; }
+  else { world.hover=null; tip.classList.remove('show'); }
+}
+
+/* ---------- game state ---------- */
+let S=null, draft=[], cur={shape:'circle',color:'red',size:'small'}, pred='none', busy=false, exam=null;
 let meta={won:0,best:null};
-try{ const m=JSON.parse(localStorage.getItem('precedent.meta')||'null'); if(m&&typeof m==='object') meta=Object.assign(meta,m);}catch(e){}
+try{ const m=JSON.parse(localStorage.getItem('precedent.meta')||'null'); if(m&&typeof m==='object') meta=Object.assign(meta,m); }catch(e){}
 function saveMeta(){ try{ localStorage.setItem('precedent.meta',JSON.stringify(meta)); }catch(e){} }
 
-function newRound(){
-  const level=$('difficulty').value;
-  const rule=makeRule(level);
-  const docket=[], seen=new Set();
-  let guard=0;
-  while((docket.filter(d=>d.ruling).length<2||docket.filter(d=>!d.ruling).length<2)&&guard++<2000){
-    const cs=randomCase(), k=key(cs); if(seen.has(k)) continue;
-    const r=rule.fn(cs);
-    if(r&&docket.filter(d=>d.ruling).length>=2) continue;
-    if(!r&&docket.filter(d=>!d.ruling).length>=2) continue;
+function clearWorldCases(){ for(const g of world.slabs) scene.remove(g); world.slabs=[]; world.galleryFor=[]; world.galleryAgainst=[]; if(world.draftGroup){ scene.remove(world.draftGroup); world.draftGroup=null; } }
+function placeInGallery(g,ruling,animate){
+  const arr=ruling?world.galleryFor:world.galleryAgainst; const i=arr.length; arr.push(g);
+  const to=gallerySlot(ruling?-1:1,i); g.userData.placed=true; g.userData.ruling=ruling; g.userData.baseY=to.y; g.userData.phase=Math.random()*6; g.userData.float=false;
+  const rotTo=ruling?.18:-.18;
+  if(animate) return Promise.all([tweenVec(g.position,to,900,easeInOutCubic),tweenNum(g.rotation,'y',rotTo,900)]);
+  g.position.copy(to); g.rotation.y=rotTo; return Promise.resolve();
+}
+function showDraft(){
+  if(world.draftGroup){ scene.remove(world.draftGroup); world.slabs=world.slabs.filter(x=>x!==world.draftGroup); world.draftGroup=null; }
+  if(!draft.length) return;
+  const g=makeSlab(draft); g.position.copy(world.altarTop); g.position.y+=.1; g.userData.pieces.forEach(m=>m.userData.baseY=m.position.y);
+  g.children[0].visible=false; g.children[1].visible=false; scene.add(g); world.draftGroup=g; world.slabs.push(g);
+  const last=g.userData.pieces[g.userData.pieces.length-1]; if(last){ const s=last.scale.x; last.scale.setScalar(.01); tween(t=>last.scale.setScalar(.01+(s-.01)*t),420,easeOutBack); }
+}
+
+async function newRound(){
+  if(busy) return; busy=true;
+  const level=$('difficulty').value, rule=makeRule(level);
+  const docket=[], seen=new Set(); let guard=0;
+  while((docket.filter(d=>d.ruling).length<2||docket.filter(d=>!d.ruling).length<2)&&guard++<3000){
+    const cs=randomCase(), k=key(cs); if(seen.has(k)) continue; const r=rule.fn(cs);
+    if(r&&docket.filter(d=>d.ruling).length>=2) continue; if(!r&&docket.filter(d=>!d.ruling).length>=2) continue;
     seen.add(k); docket.push({cs,ruling:r,n:docket.length+1,pred:null});
   }
   S={level,rule,docket,seen,filings:0,predRight:0,predTotal:0,examsFailed:0,clerkUsed:false,over:false};
-  draft=[]; pred='none'; setPred('none');
+  draft=[]; setPred('none'); exam=null;
   $('exam').hidden=true; $('opinion').hidden=true; $('builder').hidden=false;
-  $('deskTitle').textContent='File a test case';
-  $('deskSub').textContent='A case is a row of one to four pieces, read left to right. Build one and see how the judge rules.';
-  $('verdict').textContent=''; $('verdict').className='verdict';
-  $('clerk').disabled=true; $('clerk').title='Available after six filings';
-  render();
+  $('deskTitle').textContent='File a test case'; $('deskSub').textContent='A case is a tray of one to four gems, read left to right. Build one and the Oracle rules on it. Gold is for, crimson is against.';
+  $('verdict').textContent=''; $('verdict').className='verdict'; $('clerk').disabled=true; $('clerk').title='Available after six filings';
+  world.glowTarget.set(0xf1ecdf);
+  if(THREE_OK){ clearWorldCases(); for(const d of docket){ const g=makeSlab(d.cs); g.position.set(0,6,-6); g.scale.setScalar(.01); scene.add(g); world.slabs.push(g); }
+    const ps=[]; world.slabs.forEach((g,i)=>{ ps.push((async()=>{ await sleep(i*140); await Promise.all([tween(t=>g.scale.setScalar(.01+.99*t),500,easeOutBack), placeInGallery(g,docket[i].ruling,true)]); })()); }); await Promise.all(ps); }
+  busy=false; renderHUD();
 }
 
-function render(){
-  const f=$('forList'), a=$('againstList'); f.innerHTML=''; a.innerHTML='';
-  for(const d of S.docket){
-    const el=document.createElement('div'); el.className='case'+(d.fresh?' fresh':'');
-    let note='';
-    if(d.pred){ const hit=(d.pred==='for')===d.ruling; note=`<span class="pred-note ${hit?'hit':'miss'}">${hit?'called it':'missed'}</span>`; }
-    el.innerHTML=`<span class="num">${String(d.n).padStart(2,'0')}</span>${rowHTML(d.cs)}${note}`;
-    (d.ruling?f:a).appendChild(el); d.fresh=false;
-  }
-  if(!f.children.length) f.innerHTML='<div class="empty">Nothing yet.</div>';
-  if(!a.children.length) a.innerHTML='<div class="empty">Nothing yet.</div>';
-  $('sFilings').textContent=S.filings;
-  $('sPred').textContent=`${S.predRight} / ${S.predTotal}`;
-  $('sWon').textContent=meta.won;
-  $('sBest').textContent=meta.best==null?'–':`${meta.best} filing${meta.best===1?'':'s'}`;
-  renderSlots();
+function renderHUD(){
+  const f=$('forList'),a=$('againstList'); f.innerHTML=''; a.innerHTML='';
+  for(const d of S.docket){ const el=document.createElement('div'); el.className='case'; let note=''; if(d.pred){ const hit=(d.pred==='for')===d.ruling; note=`<span class="pred-note ${hit?'hit':'miss'}">${hit?'called':'missed'}</span>`; } el.innerHTML=`<span class="num">${String(d.n).padStart(2,'0')}</span>${rowHTML(d.cs)}${note}`; (d.ruling?f:a).appendChild(el); }
+  if(!f.children.length) f.innerHTML='<div class="empty">Nothing yet.</div>'; if(!a.children.length) a.innerHTML='<div class="empty">Nothing yet.</div>';
+  $('sFilings').textContent=S.filings; $('sPred').textContent=`${S.predRight}/${S.predTotal}`; $('sWon').textContent=meta.won; $('sBest').textContent=meta.best==null?'–':meta.best;
+  renderDraft();
 }
-function renderSlots(){
+function renderDraft(){
   const s=$('slots'); s.innerHTML='';
-  draft.forEach((p,i)=>{ const b=document.createElement('button'); b.className='slot'; b.title='Remove this piece'; b.setAttribute('aria-label',`Remove ${p.size} ${p.color} ${p.shape}`); b.innerHTML=pieceSVG(p,44); b.onclick=()=>{draft.splice(i,1);renderSlots();}; s.appendChild(b); });
-  for(let i=draft.length;i<4;i++){ const g=document.createElement('div'); g.className='slot ghost'; g.textContent='+'; s.appendChild(g); }
-  const h=document.createElement('span'); h.className='hint'; h.textContent=draft.length?describe(draft):'Pick a shape, color and size, then add pieces.'; s.appendChild(h);
-  $('addPiece').disabled=draft.length>=4; $('undoPiece').disabled=!draft.length; $('fileCase').disabled=!draft.length||S.over;
+  for(let i=0;i<4;i++){ const p=draft[i]; const b=document.createElement(p?'button':'div'); b.className='slot'+(p?' filled':''); if(p){ b.innerHTML=glyph(p,28); b.title='Remove this gem'; b.setAttribute('aria-label',`Remove ${p.size} ${p.color} ${p.shape}`); b.onclick=()=>{ draft.splice(i,1); renderDraft(); showDraft(); click(); }; } s.appendChild(b); }
+  $('draftHint').textContent=draft.length?describe(draft):'Choose shape, color and size, then set gems on the tray.';
+  $('addPiece').disabled=draft.length>=4||busy; $('undoPiece').disabled=!draft.length||busy; $('fileCase').disabled=!draft.length||busy||!S||S.over; $('sitBar').disabled=busy||!S||S.over;
 }
 
-/* ---------- pickers ---------- */
-function seg(id,opts,getter,setter,labelFn){
-  const el=$(id); el.innerHTML='';
-  for(const o of opts){ const b=document.createElement('button'); b.type='button'; b.innerHTML=labelFn(o); b.setAttribute('aria-pressed',String(getter()===o)); b.onclick=()=>{setter(o); for(const x of el.children) x.setAttribute('aria-pressed',String(getter()===x.dataset.v));}; b.dataset.v=o; el.appendChild(b); }
-}
-seg('shapeSeg',SHAPES,()=>cur.shape,v=>cur.shape=v,o=>pieceSVG({shape:o,color:'blue',size:'large'},22)+o);
-seg('colorSeg',COLORS,()=>cur.color,v=>cur.color=v,o=>`<span class="dot" style="background:var(--p-${o})"></span>${o}`);
-seg('sizeSeg',SIZES,()=>cur.size,v=>cur.size=v,o=>pieceSVG({shape:'circle',color:'gold',size:o},22)+o);
+/* pickers */
+function seg(id,opts,getter,setter,labelFn){ const el=$(id); el.innerHTML=''; for(const o of opts){ const b=document.createElement('button'); b.type='button'; b.innerHTML=labelFn(o); b.dataset.v=o; b.setAttribute('aria-pressed',String(getter()===o)); b.onclick=()=>{ setter(o); click(); for(const x of el.children) x.setAttribute('aria-pressed',String(getter()===x.dataset.v)); }; el.appendChild(b); } }
+seg('shapeSeg',SHAPES,()=>cur.shape,v=>cur.shape=v,o=>glyph({shape:o,color:'blue',size:'large'},20)+o);
+seg('colorSeg',COLORS,()=>cur.color,v=>cur.color=v,o=>`<span class="dot" style="background:${CSS[o]}"></span>${o}`);
+seg('sizeSeg',SIZES,()=>cur.size,v=>cur.size=v,o=>glyph({shape:'circle',color:'gold',size:o},20)+o);
 function setPred(v){ pred=v; for(const b of $('predSeg').children) b.setAttribute('aria-pressed',String(b.dataset.p===v)); }
-for(const b of $('predSeg').children) b.onclick=()=>setPred(b.dataset.p);
+for(const b of $('predSeg').children) b.onclick=()=>{ setPred(b.dataset.p); click(); };
+$('addPiece').onclick=()=>{ if(draft.length<4){ draft.push({...cur}); renderDraft(); showDraft(); tone(520+draft.length*60,.12,'triangle',.08); } };
+$('undoPiece').onclick=()=>{ draft.pop(); renderDraft(); showDraft(); click(); };
+$('clearCase').onclick=()=>{ draft=[]; renderDraft(); showDraft(); click(); };
+$('randomCase').onclick=()=>{ draft=randomCase(); renderDraft(); showDraft(); click(); };
+$('toggleDocket').onclick=()=>{ const d=$('docket'); d.classList.toggle('open'); $('toggleDocket').setAttribute('aria-pressed',String(d.classList.contains('open'))); };
+$('toggleSound').onclick=()=>{ soundOn=!soundOn; $('toggleSound').textContent=soundOn?'Sound on':'Muted'; $('toggleSound').setAttribute('aria-pressed',String(soundOn)); if(soundOn) click(); };
 
-$('addPiece').onclick=()=>{ if(draft.length<4){draft.push({...cur});renderSlots();} };
-$('undoPiece').onclick=()=>{ draft.pop(); renderSlots(); };
-$('clearCase').onclick=()=>{ draft=[]; renderSlots(); };
-$('randomCase').onclick=()=>{ draft=randomCase(); renderSlots(); };
-
-/* ---------- filing ---------- */
-$('fileCase').onclick=()=>{
-  if(!draft.length||S.over) return;
-  const cs=draft.map(p=>({...p})), k=key(cs);
-  const ruling=S.rule.fn(cs);
-  const dup=S.seen.has(k);
-  if(!dup){ S.seen.add(k); S.filings++; }
-  const entry={cs,ruling,n:S.docket.length+1,pred:pred==='none'?null:pred,fresh:true};
-  if(pred!=='none'){ S.predTotal++; if((pred==='for')===ruling) S.predRight++; }
-  if(dup){ toast('Already on the docket. The ruling is the same; it still counts as a filing for practice, not for score.'); }
-  S.docket.push(entry);
-  const v=$('verdict'); v.className='verdict '+(ruling?'for':'against');
-  let msg=`<span class="stamp">${ruling?'For':'Against'}</span> The judge rules ${ruling?'in favor':'against'}.`;
-  if(pred!=='none') msg+= (pred==='for')===ruling ? ' You called it.' : ' You missed. Rethink the rule.';
-  v.innerHTML=msg;
-  if(S.filings>=6&&!S.clerkUsed){ $('clerk').disabled=false; $('clerk').title='Learn what kind of thing the rule is about'; }
-  draft=[]; setPred('none'); render();
-};
-
-$('clerk').onclick=()=>{
-  if(S.clerkUsed) return; S.clerkUsed=true; $('clerk').disabled=true;
-  toast(`The clerk leans in: the rule is about ${S.rule.cat}.`, 5000);
-};
-
-$('giveUp').onclick=()=>{ if(S.over) return; endRound(false); };
-
-/* ---------- bar exam ---------- */
-let exam=null;
-$('sitBar').onclick=()=>{
-  if(S.over) return;
-  const cases=[]; const seen=new Set(S.seen); let f=0,a=0,guard=0;
-  while(cases.length<5&&guard++<5000){
-    const cs=randomCase(), k=key(cs); if(seen.has(k)) continue;
-    const r=S.rule.fn(cs);
-    if(r&&f>=3) continue; if(!r&&a>=3) continue;
-    seen.add(k); cases.push({cs,ruling:r,ans:null}); if(r)f++; else a++;
+/* filing */
+async function ruleOn(g,ruling){
+  const col=ruling?0xe3b85a:0xd9485b;
+  world.glowTarget.set(col); world.beam.material.color.set(col); world.beamLight.color.set(col);
+  world.beam.position.set(g.position.x,g.position.y+4.2,g.position.z); world.beamLight.position.set(g.position.x,g.position.y+2,g.position.z);
+  await Promise.all([tweenNum(world.beam.material,'opacity',.28,260,easeOutCubic),tweenNum(world.beamLight,'intensity',2.2,260,easeOutCubic)]);
+  gavel(); if(ruling) chimeFor(); else chimeAgainst();
+  const stamp=textSprite(ruling?'FOR':'AGAINST',ruling?'#ffd981':'#ff8a98',110); stamp.position.copy(g.position).add(new THREE.Vector3(0,1.7,0)); stamp.scale.multiplyScalar(.01); scene.add(stamp);
+  await tween(t=>stamp.scale.set(2.4*t*(stamp.material.map.image.width/stamp.material.map.image.height),2.4*t,1),380,easeOutBack);
+  await sleep(500);
+  const p1=Promise.all([tweenNum(world.beam.material,'opacity',0,420),tweenNum(world.beamLight,'intensity',0,420)]);
+  const p2=tween(t=>{ stamp.material.opacity=1-t; stamp.position.y=g.position.y+1.7+t*.8; },420).then(()=>scene.remove(stamp));
+  await Promise.all([p1,p2]);
+  world.glowTarget.set(0xf1ecdf);
+}
+$('fileCase').onclick=async()=>{
+  if(!draft.length||busy||S.over) return; busy=true; renderDraft();
+  const cs=draft.map(p=>({...p})), k=key(cs), ruling=S.rule.fn(cs), dup=S.seen.has(k);
+  if(!dup){ S.seen.add(k); S.filings++; } else toast('Already on the docket. Same ruling, no new filing counted.');
+  const p=pred; if(p!=='none'){ S.predTotal++; if((p==='for')===ruling) S.predRight++; }
+  const entry={cs,ruling,n:S.docket.length+1,pred:p==='none'?null:p}; S.docket.push(entry);
+  draft=[]; setPred('none'); renderDraft();
+  const g=world.draftGroup; world.draftGroup=null;
+  if(THREE_OK&&g){
+    g.children[0].visible=true; g.children[1].visible=true;
+    g.userData.pieces.forEach(m=>{ m.position.y=m.userData.baseY; });
+    await Promise.all([tweenVec(g.position,new THREE.Vector3(0,2.6,-4),900,easeInOutCubic),tweenNum(g.rotation,'y',0,900)]);
+    await ruleOn(g,ruling);
+    await placeInGallery(g,ruling,true);
   }
+  const v=$('verdict'); v.className='verdict '+(ruling?'for':'against');
+  v.textContent=`The Oracle rules ${ruling?'FOR':'AGAINST'}.`+(p!=='none'?((p==='for')===ruling?' You called it.':' You missed. Rethink the rule.'):'');
+  if(S.filings>=6&&!S.clerkUsed){ $('clerk').disabled=false; $('clerk').title='Learn what kind of thing the rule is about'; }
+  busy=false; renderHUD();
+};
+$('clerk').onclick=()=>{ if(S.clerkUsed) return; S.clerkUsed=true; $('clerk').disabled=true; toast(`The clerk leans in: the rule is about ${S.rule.cat}.`,5200); click(); };
+$('giveUp').onclick=()=>{ if(!S||S.over||busy) return; endRound(false); };
+
+/* bar exam */
+$('sitBar').onclick=async()=>{
+  if(busy||S.over) return; busy=true; renderDraft();
+  const cases=[]; const seen=new Set(S.seen); let f=0,a=0,guard=0;
+  while(cases.length<5&&guard++<6000){ const cs=randomCase(),k=key(cs); if(seen.has(k)) continue; const r=S.rule.fn(cs); if(r&&f>=3) continue; if(!r&&a>=3) continue; seen.add(k); cases.push({cs,ruling:r,ans:null,g:null}); if(r)f++; else a++; }
   exam={cases,submitted:false};
-  $('builder').hidden=true; $('exam').hidden=false;
-  $('deskTitle').textContent='The bar exam';
-  $('deskSub').textContent='Five fresh cases. Call each one. Five for five passes.';
-  renderExam();
+  if(world.draftGroup){ scene.remove(world.draftGroup); world.slabs=world.slabs.filter(x=>x!==world.draftGroup); world.draftGroup=null; } draft=[];
+  $('builder').hidden=true; $('exam').hidden=false; $('deskTitle').textContent='The bar exam'; $('deskSub').textContent='Five fresh cases float before the bench. Call each one. Five for five passes.';
+  if(THREE_OK){ const ps=cases.map((c,i)=>{ const g=makeSlab(c.cs); c.g=g; g.position.set(0,5.5,-7); g.scale.setScalar(.01); scene.add(g); world.slabs.push(g); const to=new THREE.Vector3((i-2)*2.95,2.3+Math.abs(i-2)*.12,-1.5-Math.abs(i-2)*.5); g.userData.baseY=to.y; g.userData.phase=i; g.userData.float=true; const num=textSprite(String(i+1),'#f1ecdf',80); num.position.set(0,1.35,0); num.scale.multiplyScalar(.6); g.add(num); c.num=num; return (async()=>{ await sleep(i*120); await Promise.all([tween(t=>g.scale.setScalar(.01+.99*t),520,easeOutBack),tweenVec(g.position,to,700,easeOutCubic)]); })(); }); await Promise.all(ps); }
+  busy=false; renderExam();
 };
 function renderExam(){
   const x=$('exam'); x.innerHTML='';
-  exam.cases.forEach((c,i)=>{
-    const el=document.createElement('div'); el.className='exam-case';
-    if(exam.submitted) el.classList.add((c.ans==='for')===c.ruling?'right':'wrong');
-    const truth=exam.submitted?`<div class="truth">Judge: ${c.ruling?'FOR':'AGAINST'}</div>`:'';
-    el.innerHTML=`<div><div class="eyebrow">Question ${i+1}</div>${rowHTML(c.cs)}${truth}</div>
-      <div class="seg" role="group" aria-label="Your ruling for question ${i+1}">
-        <button type="button" data-a="for" aria-pressed="${c.ans==='for'}">For</button>
-        <button type="button" data-a="against" aria-pressed="${c.ans==='against'}">Against</button>
-      </div>`;
-    for(const b of el.querySelectorAll('[data-a]')) b.onclick=()=>{ if(exam.submitted) return; c.ans=b.dataset.a; renderExam(); };
-    x.appendChild(el);
-  });
+  exam.cases.forEach((c,i)=>{ const el=document.createElement('div'); el.className='exam-case'; if(exam.submitted) el.classList.add((c.ans==='for')===c.ruling?'right':'wrong');
+    el.innerHTML=`<div><div class="eyebrow">Question ${i+1}</div>${rowHTML(c.cs)}${exam.submitted?`<div class="truth">Oracle: ${c.ruling?'For':'Against'}</div>`:''}</div><div class="seg" role="group" aria-label="Your ruling for question ${i+1}"><button type="button" data-a="for" aria-pressed="${c.ans==='for'}">For</button><button type="button" data-a="against" aria-pressed="${c.ans==='against'}">Against</button></div>`;
+    for(const b of el.querySelectorAll('[data-a]')) b.onclick=()=>{ if(exam.submitted||busy) return; c.ans=b.dataset.a; click(); renderExam(); };
+    x.appendChild(el); });
   const act=document.createElement('div'); act.className='actions';
-  if(!exam.submitted){
-    const ready=exam.cases.every(c=>c.ans);
-    act.innerHTML=`<button id="submitExam" class="primary" ${ready?'':'disabled'}>Submit answers</button><button id="backToDesk" class="quiet">Back to filing</button>`;
-    x.appendChild(act);
-    $('submitExam').onclick=gradeExam;
-    $('backToDesk').onclick=leaveExam;
-  } else {
-    const wrong=exam.cases.filter(c=>(c.ans==='for')!==c.ruling).length;
-    act.innerHTML=`<p class="sub" style="flex:1">${wrong?`You missed ${wrong}. The judge keeps the rule to themself. Back to the docket.`:'Five for five.'}</p>` + (wrong?`<button id="backToDesk" class="primary">Back to filing</button>`:'');
-    x.appendChild(act);
-    if(wrong) $('backToDesk').onclick=leaveExam;
-  }
+  if(!exam.submitted){ const ready=exam.cases.every(c=>c.ans); act.innerHTML=`<button id="submitExam" class="gold" ${ready&&!busy?'':'disabled'}>Submit answers</button><button id="backToDesk" class="ghost" ${busy?'disabled':''}>Back to filing</button>`; x.appendChild(act); $('submitExam').onclick=gradeExam; $('backToDesk').onclick=leaveExam; }
+  else { const wrong=exam.cases.filter(c=>(c.ans==='for')!==c.ruling).length; act.innerHTML=`<p class="sub" style="flex:1">${wrong?`You missed ${wrong}. The five cases join the docket as precedent. Back to filing.`:'Five for five.'}</p>`+(wrong?`<button id="backToDesk" class="gold" ${busy?'disabled':''}>Back to filing</button>`:''); x.appendChild(act); if(wrong) $('backToDesk').onclick=leaveExam; }
 }
-function leaveExam(){ exam=null; $('exam').hidden=true; $('builder').hidden=false; $('deskTitle').textContent='File a test case'; $('deskSub').textContent='Back on the docket. Change one thing at a time.'; render(); }
-function gradeExam(){
-  exam.submitted=true;
+async function leaveExam(){
+  if(busy) return; busy=true; renderExam();
+  if(THREE_OK&&exam){ const ps=exam.cases.map(async(c,i)=>{ const g=c.g; if(!g) return; if(c.num){ g.remove(c.num); } g.userData.float=false; if(exam.submitted){ await sleep(i*90); await placeInGallery(g,c.ruling,true); } else { await tween(t=>g.scale.setScalar(1-.99*t),380); scene.remove(g); world.slabs=world.slabs.filter(x=>x!==g); } }); await Promise.all(ps); }
+  if(exam&&exam.submitted) for(const c of exam.cases){ S.seen.add(key(c.cs)); S.docket.push({cs:c.cs,ruling:c.ruling,n:S.docket.length+1,pred:c.ans}); }
+  exam=null; $('exam').hidden=true; $('builder').hidden=false; $('deskTitle').textContent='File a test case'; $('deskSub').textContent='Back on the docket. Change one thing at a time.'; busy=false; renderHUD();
+}
+async function gradeExam(){
+  if(busy) return; busy=true; exam.submitted=true; renderExam();
   const wrong=exam.cases.filter(c=>(c.ans==='for')!==c.ruling).length;
-  if(wrong){ S.examsFailed++; renderExam(); return; }
-  renderExam();
-  setTimeout(()=>endRound(true),600);
+  if(THREE_OK){ for(const c of exam.cases){ await ruleOnQuick(c.g,c.ruling,(c.ans==='for')===c.ruling); } }
+  if(wrong){ S.examsFailed++; busy=false; renderExam(); return; }
+  busy=false; await sleep(300); endRound(true);
+}
+async function ruleOnQuick(g,ruling,correct){
+  const col=ruling?0xe3b85a:0xd9485b; world.glowTarget.set(col); world.beam.material.color.set(col); world.beamLight.color.set(col);
+  world.beam.position.set(g.position.x,g.position.y+4.2,g.position.z); world.beamLight.position.set(g.position.x,g.position.y+2,g.position.z);
+  await Promise.all([tweenNum(world.beam.material,'opacity',.3,180,easeOutCubic),tweenNum(world.beamLight,'intensity',2.4,180,easeOutCubic)]);
+  gavel(); if(correct) tone(1046,.3,'sine',.12); else tone(140,.4,'sawtooth',.1);
+  const stamp=textSprite(ruling?'FOR':'AGAINST',ruling?'#ffd981':'#ff8a98',110); stamp.position.copy(g.position).add(new THREE.Vector3(0,1.8,0)); scene.add(stamp); const asp=stamp.material.map.image.width/stamp.material.map.image.height; stamp.scale.set(.01,.01,1);
+  await tween(t=>stamp.scale.set(1.9*t*asp,1.9*t,1),300,easeOutBack);
+  g.userData.stamp=stamp; g.add(stamp); stamp.position.set(0,1.8,0);
+  await Promise.all([tweenNum(world.beam.material,'opacity',0,260),tweenNum(world.beamLight,'intensity',0,260)]);
+  setTimeout(()=>{ tween(t=>{stamp.material.opacity=1-t},600).then(()=>g.remove(stamp)); },2200);
+  world.glowTarget.set(0xf1ecdf);
 }
 
-/* ---------- end ---------- */
-function rank(n,level){
-  const adj=level==='hard'?2:level==='easy'?-1:0;
-  if(n<=3+adj) return 'Chief Justice';
-  if(n<=6+adj) return 'Appellate judge';
-  if(n<=10+adj) return 'Trial judge';
-  return 'Admitted to the bar';
-}
-function endRound(won){
-  S.over=true;
+/* end */
+function rank(n,level){ const adj=level==='hard'?2:level==='easy'?-1:0; if(n<=3+adj) return 'Chief Justice'; if(n<=6+adj) return 'Appellate judge'; if(n<=10+adj) return 'Trial judge'; return 'Admitted to the bar'; }
+async function endRound(won){
+  S.over=true; busy=true;
   $('exam').hidden=true; $('builder').hidden=true; $('opinion').hidden=false;
   $('deskTitle').textContent=won?'Opinion of the court: you pass':'Opinion of the court';
-  $('deskSub').textContent=won?'You predicted five rulings from a rule you were never told. That is the job.':'The rule, for the record.';
-  const o=$('opinion');
+  $('deskSub').textContent=won?'You predicted five rulings from a rule you were never told. That is the whole job.':'The rule, for the record.';
   let extra='';
-  if(won){
-    meta.won++; if(meta.best==null||S.filings<meta.best) meta.best=S.filings; saveMeta();
-    extra=`<div class="rank">Rank: ${rank(S.filings,S.level)} · ${S.filings} filing${S.filings===1?'':'s'} · predictions ${S.predRight}/${S.predTotal}${S.examsFailed?` · ${S.examsFailed} failed exam${S.examsFailed>1?'s':''}`:''}${S.clerkUsed?' · clerk consulted':''}</div>`;
-  } else {
-    extra=`<div class="rank">Round abandoned after ${S.filings} filing${S.filings===1?'':'s'}.</div>`;
-  }
-  o.innerHTML=`<div class="eyebrow">The secret rule was</div><div class="rule">${S.rule.text}</div>${extra}<div class="actions" style="margin-top:6px"><button id="again" class="primary">New judge</button></div>`;
-  $('again').onclick=newRound;
-  render();
+  if(won){ meta.won++; if(meta.best==null||S.filings<meta.best) meta.best=S.filings; saveMeta(); fanfare(); world.glowTarget.set(0xe3b85a);
+    extra=`<div class="rank">Rank: ${rank(S.filings,S.level)} · ${S.filings} filing${S.filings===1?'':'s'} · predictions ${S.predRight}/${S.predTotal}${S.examsFailed?` · ${S.examsFailed} failed exam${S.examsFailed>1?'s':''}`:''}${S.clerkUsed?' · clerk consulted':''}</div>`; }
+  else { world.glowTarget.set(0x7d8bb0); extra=`<div class="rank">Round abandoned after ${S.filings} filing${S.filings===1?'':'s'}.</div>`; }
+  $('opinion').innerHTML=`<div class="eyebrow">The secret rule was</div><div class="rule">${S.rule.text}</div>${extra}<div class="actions" style="margin-top:4px"><button id="again" class="gold">New judge</button></div>`;
+  $('again').onclick=()=>{ if(!busy) newRound(); };
+  if(won&&THREE_OK){ for(let i=0;i<40;i++){ const p=randomPiece(); const m=pieceMesh(p); m.position.set((Math.random()-.5)*6,2+Math.random()*2,(Math.random()-.5)*4); m.scale.setScalar(.35+Math.random()*.4); scene.add(m); const vx=(Math.random()-.5)*6, vy=4+Math.random()*5, vz=(Math.random()-.5)*4; const start=m.position.clone(); tween(t=>{ m.position.set(start.x+vx*t,start.y+vy*t-9*t*t,start.z+vz*t); m.rotation.x+=.05; m.rotation.z+=.04; },1800,t=>t).then(()=>scene.remove(m)); } }
+  if(exam){ for(const c of exam.cases){ if(THREE_OK&&c.g){ if(c.num) c.g.remove(c.num); c.g.userData.float=false; placeInGallery(c.g,c.ruling,true); } S.seen.add(key(c.cs)); S.docket.push({cs:c.cs,ruling:c.ruling,n:S.docket.length+1,pred:c.ans}); } }
+  exam=null; busy=false; renderHUD();
 }
 
-/* ---------- misc ---------- */
-let toastT=null;
-function toast(msg,ms){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),ms||3200); }
-$('newRound').onclick=newRound;
-$('difficulty').onchange=()=>{ if(S&&S.filings===0&&!S.over) newRound(); else toast('Takes effect with the next judge.'); };
+/* misc */
+let toastT=null; function toast(m,ms){ const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),ms||3200); }
+$('newRound').onclick=()=>{ if(!busy) newRound(); };
+$('difficulty').onchange=()=>{ if(S&&S.filings===0&&!S.over&&!busy) newRound(); else toast('Takes effect with the next judge.'); };
+document.addEventListener('pointerdown',()=>ac(),{once:true});
 
+initWorld();
 newRound();
 })();
 </script>
